@@ -272,11 +272,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5626699694503912662, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.16854836
+      value: -0.16854835
       objectReference: {fileID: 0}
     - target: {fileID: 5626699694503912662, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.03337592
+      value: 0.033375915
+      objectReference: {fileID: 0}
+    - target: {fileID: 6671951791922160801, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6704246169526262606, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalPosition.x
@@ -424,7 +428,7 @@ Light:
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
-    m_Resolution: 3
+    m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
     m_Bias: 0
@@ -650,6 +654,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e59659ee8e2d9604e8e4e81230cd185f, type: 3}
+--- !u!1 &1432145493 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6665058955816078079, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+  m_PrefabInstance: {fileID: 25661034}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1432145498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432145493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f58d307cb3d6a6408ef9820d20b5820, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1467667490
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1007,7 +1028,7 @@ Terrain:
   m_HeightmapPixelError: 5
   m_SplatMapDistance: 1000
   m_HeightmapMaximumLOD: 0
-  m_ShadowCastingMode: 1
+  m_ShadowCastingMode: 0
   m_DrawHeightmap: 1
   m_DrawInstanced: 0
   m_DrawTreesAndFoliage: 1
