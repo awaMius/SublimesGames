@@ -138,6 +138,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: e68cc02aab2a1574aa3e353851cf0285, type: 2}
+    - target: {fileID: 817800448369786058, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2261508430187991510, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -200,15 +204,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2338942273686754530, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.20885897
+      value: 0.20885894
       objectReference: {fileID: 0}
     - target: {fileID: 2338942273686754530, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.16791514
+      value: -0.1679151
       objectReference: {fileID: 0}
     - target: {fileID: 2338942273686754530, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.036428146
+      value: 0.036428127
       objectReference: {fileID: 0}
     - target: {fileID: 3007014702444497866, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: far clip plane
@@ -248,7 +252,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4848173610618554643, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.20885897
+      value: 0.20885895
       objectReference: {fileID: 0}
     - target: {fileID: 4848173610618554643, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
       propertyPath: m_LocalRotation.y
@@ -318,6 +322,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -3.7638206
       objectReference: {fileID: 0}
+    - target: {fileID: 9142739825606946900, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+      propertyPath: speed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9142739825606946900, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+      propertyPath: walkingSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9142739825606946900, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+      propertyPath: PlayerAnimator
+      value: 
+      objectReference: {fileID: 1503875392}
     m_RemovedComponents:
     - {fileID: 537234731928919035, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
@@ -421,7 +437,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 0.78509355, g: 0.8018868, b: 0.73001957, a: 1}
-  m_Intensity: 1.24
+  m_Intensity: 1.3
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -558,7 +574,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7805482209267810855, guid: e59659ee8e2d9604e8e4e81230cd185f, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 7805482209267810855, guid: e59659ee8e2d9604e8e4e81230cd185f, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
@@ -732,6 +748,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fbc2ed4b8a9b629438ca3a6e5cdc4622, type: 3}
+--- !u!95 &1503875392 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 817800448369786058, guid: eca9ce3c30087414386201809e5ccc49, type: 3}
+  m_PrefabInstance: {fileID: 25661034}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1890647089
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -805,7 +826,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7805482209267810855, guid: e59659ee8e2d9604e8e4e81230cd185f, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.5
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 7805482209267810855, guid: e59659ee8e2d9604e8e4e81230cd185f, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
@@ -1026,7 +1047,7 @@ Terrain:
   m_DetailObjectDistance: 80
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
-  m_SplatMapDistance: 1000
+  m_SplatMapDistance: 50
   m_HeightmapMaximumLOD: 0
   m_ShadowCastingMode: 0
   m_DrawHeightmap: 1
@@ -1039,7 +1060,7 @@ Terrain:
   m_PreserveTreePrototypeLayers: 0
   m_DeringLightProbesForTrees: 1
   m_ScaleInLightmap: 0.0256
-  m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightmapParameters: {fileID: 111300000, guid: 6969fa23ac7979b4cb5c994667de7af4, type: 2}
   m_GroupingID: 0
   m_RenderingLayerMask: 1
   m_AllowAutoConnect: 1
