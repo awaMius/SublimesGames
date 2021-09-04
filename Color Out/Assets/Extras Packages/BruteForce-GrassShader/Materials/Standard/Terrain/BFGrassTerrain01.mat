@@ -239,7 +239,7 @@ Material:
     - _TextureScale: 0.25
     - _TilingN1: 8
     - _TilingN2: 0.05
-    - _TilingN3: 0.1
+    - _TilingN3: 0.5
     - _UVSec: 0
     - _UseBiplanar: 0
     - _UsePR: 0
@@ -248,7 +248,7 @@ Material:
     - _UseShadowCast: 1
     - _UseWC: 0
     - _WindForce: 0.1
-    - _WindMovement: 0.1
+    - _WindMovement: 0.2
     - _WorldRotation: 0
     - _WorldScale: 10
     - _ZWrite: 1

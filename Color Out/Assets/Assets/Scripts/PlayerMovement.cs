@@ -29,11 +29,15 @@ public class PlayerMovement : MonoBehaviour
     public float TrotSpeed = 4f;
     public float runningSpeed = 6f;
     public float RunBlending = 0.1f;
-    [SerializeField] float animspeedfactor;
-    [SerializeField] float maxSpeed;
+    public float directionCheckerDelay = 0.2f;
     public Animator PlayerAnimator;
 
+    [SerializeField] float animspeedfactor;
+    [SerializeField] float maxSpeed;
+    [SerializeField] bool updateDirection;
+
     [SerializeField] Vector3 oldDirection;
+    [SerializeField] Vector3 direction;
 
     void Update()
     {
@@ -57,14 +61,15 @@ public class PlayerMovement : MonoBehaviour
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+        direction = new Vector3(horizontal, 0f, vertical).normalized;
 
         if (direction.magnitude >= 0.1f)
         {
-
-
-            if(direction.x != 0f | direction.z != 0f) oldDirection = direction;
-
+            if (direction.x != 0f & updateDirection == false | direction.z != 0f & updateDirection == false)
+            {
+                Invoke("UpdateDirection", directionCheckerDelay);
+                updateDirection = true;
+            }
 
 
             if (Input.GetKey(KeyCode.LeftShift) && maxSpeed != WalkSpeed) maxSpeed = runningSpeed; else maxSpeed = TrotSpeed;
@@ -107,19 +112,32 @@ public class PlayerMovement : MonoBehaviour
             //SPEED LOWER
 
 
+            if (speed > 0f)
+            {
+                float targetAngle = Mathf.Atan2(oldDirection.x, oldDirection.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref TurnsmoothVelocity, turnSmoothTime);
+                transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            float targetAngle = Mathf.Atan2(oldDirection.x, oldDirection.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref TurnsmoothVelocity, turnSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-
-             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-             controller.Move(moveDir.normalized * speed * Time.deltaTime);
-
+                Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+                controller.Move(moveDir.normalized * speed * Time.deltaTime);
+            }
 
 
         }
         controller.Move(velocity * Time.deltaTime);
         velocity.y += gravity * Time.deltaTime;
     }
+
+
+
+    public void UpdateDirection()
+    {
+        if (direction.magnitude >= 0.1f)
+        {
+            oldDirection = direction;
+        }
+        updateDirection = false;
+    }
+
 }
