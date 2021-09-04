@@ -1,0 +1,71 @@
+﻿{
+  "renderingMode": {
+    "m_Text": "レンダリングモード",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "Opaque : 不透明のポリゴン\nCutoff : 切り抜きポリゴン"
+  },
+  "albedoText": {
+    "m_Text": "アルベド",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "反射率(RGB)と不透明度(A)の設定"
+  },
+  "alphaCutoffText": {
+    "m_Text": "しきい値",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "切り抜きの基準となる値(A)"
+  },
+  "rampText": {
+    "m_Text": "ランプ",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "陰影の設定"
+  },
+  "rampDirectionalText": {
+    "m_Text": "平行光源",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "ディレクショナルライトのランプテクスチャ"
+  },
+  "rampPointText": {
+    "m_Text": "点光源",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "ポイントライトのランプテクスチャ"
+  },
+  "occlusionText": {
+    "m_Text": "オクルージョン",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "遮蔽マップの設定(G)"
+  },
+  "emissionText": {
+    "m_Text": "発光",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "発光の設定(HDR)"
+  },
+  "lineSizeText": {
+    "m_Text": "サイズ",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "アウトラインの太さ(ビューポート空間)"
+  },
+  "lineColorText": {
+    "m_Text": "色",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "色(RGB)と不透明度(A)の設定"
+  },
+  "standardGIText": {
+    "m_Text": "単色GIを無効にする",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "Unityの標準的なGIを利用する"
+  },
+  "blendOcclusionToAlbedoText":{
+    "m_Text": "オクルージョンをアルベドに適用",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": ""
+  },
+  "cullModeText": {
+    "m_Text": "カリングモード",
+    "m_Image": { "instanceID": 0 },
+    "m_Tooltip": "Off:カリングを行わない\nFront:表側をカリングする\nBack:裏面をカリングする"
+  },
+  "tipsText": "キャラクターは、陰影なし・シャドウキャスティングなしがおすすめです。",
+  "primaryMapsText": "Main Maps",
+  "lineSettingsText": "Outline",
+  "advancedOptionsText": "Options"
+}

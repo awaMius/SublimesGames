@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 78168c44f1bc4b940bc7e6671a5bce71
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _MainTex: {instanceID: 0}
+  - _MetallicGlossMap: {instanceID: 0}
+  - _ToonTex: {fileID: 2800000, guid: 52d4f70de0d23034c9332a59c8c84a49, type: 3}
+  - _ToonPointLightTex: {fileID: 2800000, guid: 52d4f70de0d23034c9332a59c8c84a49,
+      type: 3}
+  - _OcclusionMap: {instanceID: 0}
+  - _EmissionMap: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

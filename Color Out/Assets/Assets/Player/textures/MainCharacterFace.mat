@@ -8,9 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MainCharacterFace
-  m_Shader: {fileID: 4800000, guid: 917b37092bae034459c28c00a3a19b54, type: 3}
-  m_ShaderKeywords: COLOR_GRADING_HDR VIGNETTE_MASKED _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-  m_LightmapFlags: 4
+  m_Shader: {fileID: 4800000, guid: b9f38d67789c8474298d76d3fb45a06f, type: 3}
+  m_ShaderKeywords: COLOR_GRADING_HDR HARD_SHADING_ON VIGNETTE_MASKED _BLENDOCCLUSIONTOALBEDO_OFF
+    _EMISSION _ENABLEANISOTROPY_OFF _ENABLECLEARCOAT_OFF _ENABLESUBSURFACE_OFF _ENABLETOONREFLECTIONS_OFF
+    _ENABLETRANSMISSION_OFF _ENVIRONMENTREFLECTIONS_OFF _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+    _SPECULARHIGHLIGHTS_OFF _USESTANDARDGI_OFF
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -255,7 +258,15 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -351,6 +362,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SmoothnessTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecularAnisoJitterMacro:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -395,8 +410,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ToonPointLightTex:
+        m_Texture: {fileID: 2800000, guid: 9c3d604ca947fd34ab056c8bf5b1d533, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ToonRamp:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ToonTex:
+        m_Texture: {fileID: 2800000, guid: 9c3d604ca947fd34ab056c8bf5b1d533, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VertexManipulationHeightMask:
@@ -406,8 +429,10 @@ Material:
     m_Ints: []
     m_Floats:
     - DSGI: 0
+    - HARD_SHADING: 1
     - Instancing: 0
     - LightmapFlags: 0
+    - Vector1_962926F1: 1.1
     - _1st2nd_Shades_Feather: 0.0001
     - _1stShadeMapMask_Inverse: 0
     - _1st_ShadeMapUV: 0
@@ -493,8 +518,11 @@ Material:
     - _BackFaceHueShift: 0
     - _BackFaceReplaceAlpha: 0
     - _BackFaceTextureUV: 0
+    - _BacklightAmount: 2.3
     - _BaseColor_Step: 0.5
     - _BaseShade_Feather: 0.0001
+    - _Blend: 0
+    - _BlendOcclusionToAlbedo: 0
     - _BlendOp: 0
     - _BlendOpAlpha: 0
     - _BumpMapUV: 0
@@ -515,6 +543,8 @@ Material:
     - _ContinuousDissolve: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DabsRotation: 15
+    - _DabsTiling: 10
     - _DebugCameraData: 0
     - _DebugEnabled: 0
     - _DebugLightingData: 0
@@ -750,7 +780,7 @@ Material:
     - _GlitterTextureRotation: 0
     - _GlitterUseSurfaceColor: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 1
     - _GlossyReflections: 1
     - _IgnoreFog: 0
     - _Inverse_Clipping: 0
@@ -847,10 +877,12 @@ Material:
     - _Mode: 0
     - _ModelAngleMax: 90
     - _ModelAngleMin: 45
+    - _NormalMult: 1
+    - _OcclusionMult: 1
     - _OcclusionStrength: 1
     - _OffsetFactor: 0
     - _OffsetUnits: 0
-    - _OutlineCull: 1
+    - _OutlineCull: 2
     - _OutlineEmission: 0
     - _OutlineFixedSize: 0
     - _OutlineHueOffset: 0
@@ -863,6 +895,7 @@ Material:
     - _OutlineOffsetUnits: 0
     - _OutlineRimLightBlend: 0
     - _OutlineShadowStrength: 1
+    - _OutlineSize: 0.001
     - _OutlineStencilCompareFunction: 8
     - _OutlineStencilFailOp: 0
     - _OutlineStencilPassOp: 0
@@ -976,6 +1009,7 @@ Material:
     - _SpecularAnisoJitterMicroUV: 0
     - _SpecularAnisoJitterMirrored: 0
     - _SpecularAnisoJitterMirrored1: 0
+    - _SpecularFactor: 0
     - _SpecularHighlights: 1
     - _SpecularInvertSmoothness: 0
     - _SpecularInvertSmoothness1: 0
@@ -1024,7 +1058,9 @@ Material:
     - _TextTimeEnabled: 0
     - _TextTimeRotation: 0
     - _TextTimeUV: 0
+    - _ToonFactor: 1
     - _UVSec: 0
+    - _UseStandardGI: 0
     - _Use_1stAs2nd: 0
     - _Use_1stShadeMapAlpha_As_ShadowMask: 0
     - _Use_2ndShadeMapAlpha_As_ShadowMask: 0
@@ -1036,6 +1072,8 @@ Material:
     - _VertexRoundingDivision: 500
     - _VertexRoundingEnabled: 0
     - _VertexUnwrap: 0
+    - _WaveFrequency: 5
+    - _WaveScale: 0.5
     - _ZTest: 4
     - _ZWrite: 1
     - _commentIfZero_EnableOutlinePass: 0
@@ -1313,6 +1351,7 @@ Material:
     - _ClearcoatMapPan: {r: 0, g: 0, b: 0, a: 0}
     - _ClippingMaskPan: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color2: {r: 0, g: 1, b: 0.038177013, a: 1}
     - _DecalColor: {r: 1, g: 1, b: 1, a: 1}
     - _DecalColor1: {r: 1, g: 1, b: 1, a: 1}
     - _DecalColor2: {r: 1, g: 1, b: 1, a: 1}
@@ -1388,6 +1427,7 @@ Material:
     - _MetallicMaskPan: {r: 0, g: 0, b: 0, a: 0}
     - _MetallicTintMapPan: {r: 0, g: 0, b: 0, a: 0}
     - _MirrorTexturePan: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 0.89}
     - _OutlineDropShadowOffset: {r: 1, g: 0, b: 0, a: 0}
     - _OutlineFadeDistance: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineMaskPan: {r: 0, g: 0, b: 0, a: 0}
@@ -1421,6 +1461,7 @@ Material:
     - _SSSColor: {r: 1, g: 0, b: 0, a: 1}
     - _SSSThicknessMapPan: {r: 0, g: 0, b: 0, a: 0}
     - _SmoothnessMaskPan: {r: 0, g: 0, b: 0, a: 0}
+    - _Specular: {r: 0.2075472, g: 0.2075472, b: 0.2075472, a: 0}
     - _SpecularAnisoJitterMacro1Pan: {r: 0, g: 0, b: 0, a: 0}
     - _SpecularAnisoJitterMacroPan: {r: 0, g: 0, b: 0, a: 0}
     - _SpecularAnisoJitterMicro1Pan: {r: 0, g: 0, b: 0, a: 0}
@@ -1449,6 +1490,7 @@ Material:
     - _TextTimeOffset: {r: 0, g: 0, b: 0, a: 0}
     - _TextTimePadding: {r: 0, g: 0, b: 0, a: 0}
     - _TextTimeScale: {r: 1, g: 1, b: 1, a: 1}
+    - _TextureTiling: {r: 1, g: 1, b: 0, a: 0}
     - _VertexManipulationHeightPan: {r: 0, g: 0, b: 0, a: 0}
     - _VertexManipulationLocalRotation: {r: 0, g: 0, b: 0, a: 1}
     - _VertexManipulationLocalScale: {r: 1, g: 1, b: 1, a: 1}
