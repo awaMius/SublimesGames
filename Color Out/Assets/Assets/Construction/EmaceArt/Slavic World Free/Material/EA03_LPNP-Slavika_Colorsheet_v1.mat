@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: EA03_LPNP-Slavika_Colorsheet_v1
-  m_Shader: {fileID: 4800000, guid: 917b37092bae034459c28c00a3a19b54, type: 3}
-  m_ShaderKeywords: VIGNETTE_MASKED _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A _SPECULARHIGHLIGHTS_OFF
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: VIGNETTE_MASKED _GLOSSYREFLECTIONS_OFF _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -803,7 +803,7 @@ Material:
     - _LightingIndirectColorMode: 0
     - _LightingMinLightBrightness: 0
     - _LightingMinShadowBrightnessRatio: 0
-    - _LightingMode: 0
+    - _LightingMode: 1
     - _LightingMonochromatic: 0
     - _LightingOnlyUnityShadows: 0
     - _LightingRampType: 0
@@ -980,8 +980,8 @@ Material:
     - _ShadowMix: 0
     - _ShadowMixThreshold: 0.5
     - _ShadowMixWidthMod: 0.5
-    - _ShadowOffset: 0.122
-    - _ShadowStrength: 0.243
+    - _ShadowOffset: 0.127
+    - _ShadowStrength: 0.225
     - _Smoothness: 0
     - _SmoothnessFrom: 1
     - _SmoothnessFrom1: 1
@@ -1066,7 +1066,7 @@ Material:
     - _VertexRoundingEnabled: 0
     - _VertexUnwrap: 0
     - _WorkflowMode: 1
-    - _ZTest: 4
+    - _ZTest: 2
     - _ZWrite: 1
     - _commentIfZero_EnableOutlinePass: 0
     - _glitterFrequencyLinearEmissive: 20
@@ -1185,7 +1185,7 @@ Material:
     - m_end_vertexManipulation: 0
     - m_end_voronoiRandom: 0
     - m_lightingOptions: 1
-    - m_mainOptions: 1
+    - m_mainOptions: 0
     - m_outlineOptions: 0
     - m_renderingOptions: 0
     - m_start_Alpha: 0

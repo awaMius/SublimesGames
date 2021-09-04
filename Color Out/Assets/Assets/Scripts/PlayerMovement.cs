@@ -35,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float animspeedfactor;
     [SerializeField] float maxSpeed;
     [SerializeField] bool updateDirection;
+    [SerializeField] bool FirstDirectionInput;
 
     [SerializeField] Vector3 oldDirection;
     [SerializeField] Vector3 direction;
@@ -65,10 +66,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (direction.magnitude >= 0.1f)
         {
-            if (direction.x != 0f & updateDirection == false | direction.z != 0f & updateDirection == false)
+            if (direction.x != 0f & !updateDirection & FirstDirectionInput| direction.z != 0f & !updateDirection & FirstDirectionInput)
             {
                 Invoke("UpdateDirection", directionCheckerDelay);
                 updateDirection = true;
+            }
+
+            if (!FirstDirectionInput)
+            {
+                Invoke("UpdateDirection", 0);
+                FirstDirectionInput = true;
             }
 
 
@@ -76,10 +83,9 @@ public class PlayerMovement : MonoBehaviour
 
 
             if (Input.GetKey(KeyCode.LeftAlt)) { 
-                animspeedfactor = speed / 12;
                 maxSpeed = WalkSpeed;
             }
-            else animspeedfactor = speed / runningSpeed;
+            animspeedfactor = speed;
 
 
 
@@ -104,13 +110,14 @@ public class PlayerMovement : MonoBehaviour
 
         } else if(direction.magnitude < 0.1f)
         {
-            animspeedfactor = speed / runningSpeed;
+            animspeedfactor = speed;
             if (speed > maxSpeed) speed = speed - RunBlending;
             PlayerAnimator.SetFloat("speed", animspeedfactor);
             maxSpeed = 0f;
 
             //SPEED LOWER
 
+               if(speed <= 0) FirstDirectionInput = false;
 
             if (speed > 0f)
             {

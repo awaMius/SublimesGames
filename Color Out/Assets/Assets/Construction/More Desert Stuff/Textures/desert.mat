@@ -1038,7 +1038,7 @@ Material:
     - _VertexUnwrap: 0
     - _ZTest: 4
     - _ZWrite: 1
-    - _commentIfZero_EnableOutlinePass: 0
+    - _commentIfZero_EnableOutlinePass: 1
     - _glitterFrequencyLinearEmissive: 20
     - footer_discord: 0
     - footer_github: 0
@@ -1156,7 +1156,7 @@ Material:
     - m_end_voronoiRandom: 0
     - m_lightingOptions: 1
     - m_mainOptions: 0
-    - m_outlineOptions: 0
+    - m_outlineOptions: 1
     - m_renderingOptions: 1
     - m_start_Alpha: 0
     - m_start_BlackLight: 0
@@ -1376,7 +1376,7 @@ Material:
     - _LightingDetailShadowsPan: {r: 0, g: 0, b: 0, a: 0}
     - _LightingShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightingShadowMaskPan: {r: 0, g: 0, b: 0, a: 0}
-    - _LineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LineColor: {r: 0.004496974, g: 0.13207549, b: 0.0018689893, a: 1}
     - _MainColorAdjustTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainFadeTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainTexPan: {r: 0, g: 0, b: 0, a: 0}

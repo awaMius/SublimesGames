@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Shell_-_Lightest
-  m_Shader: {fileID: 4800000, guid: 917b37092bae034459c28c00a3a19b54, type: 3}
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: VIGNETTE_MASKED _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -789,7 +789,7 @@ Material:
     - _LightingUncapped: 0
     - _LightingWrappedNormalization: 0
     - _LightingWrappedWrap: 0
-    - _LineWidth: 0
+    - _LineWidth: 1
     - _LockTooltip: 0
     - _MainAlphaToCoverage: 0
     - _MainBrightness: 0
@@ -851,7 +851,7 @@ Material:
     - _OffsetFactor: 0
     - _OffsetUnits: 0
     - _OutlineCull: 1
-    - _OutlineEmission: 0
+    - _OutlineEmission: 1
     - _OutlineFixedSize: 0
     - _OutlineHueOffset: 0
     - _OutlineHueOffsetSpeed: 0
@@ -953,7 +953,7 @@ Material:
     - _ShadowMixThreshold: 0.5
     - _ShadowMixWidthMod: 0.5
     - _ShadowOffset: 0
-    - _ShadowStrength: 0.234
+    - _ShadowStrength: 0.224
     - _Smoothness: 0
     - _SmoothnessFrom: 1
     - _SmoothnessFrom1: 1
@@ -1038,7 +1038,7 @@ Material:
     - _VertexUnwrap: 0
     - _ZTest: 4
     - _ZWrite: 1
-    - _commentIfZero_EnableOutlinePass: 0
+    - _commentIfZero_EnableOutlinePass: 1
     - _glitterFrequencyLinearEmissive: 20
     - footer_discord: 0
     - footer_github: 0
@@ -1156,7 +1156,7 @@ Material:
     - m_end_voronoiRandom: 0
     - m_lightingOptions: 1
     - m_mainOptions: 0
-    - m_outlineOptions: 0
+    - m_outlineOptions: 1
     - m_renderingOptions: 0
     - m_start_Alpha: 0
     - m_start_BlackLight: 0
@@ -1376,7 +1376,7 @@ Material:
     - _LightingDetailShadowsPan: {r: 0, g: 0, b: 0, a: 0}
     - _LightingShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightingShadowMaskPan: {r: 0, g: 0, b: 0, a: 0}
-    - _LineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LineColor: {r: 0.041829824, g: 0.18867922, b: 0.061502647, a: 1}
     - _MainColorAdjustTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainFadeTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainTexPan: {r: 0, g: 0, b: 0, a: 0}
