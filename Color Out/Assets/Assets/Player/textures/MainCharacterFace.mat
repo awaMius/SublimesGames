@@ -178,6 +178,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _EmmisTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _FlipbookMask:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -742,6 +746,9 @@ Material:
     - _FlipbookTotalFrames: 1
     - _ForceOpaque: 0
     - _ForgotToLockMaterial: 1
+    - _FresnelBrightness: 0
+    - _FresnelPower: 0
+    - _FresnelShadowDropoff: 0
     - _GIEmissionMultiplier: 1
     - _GITDEMaxEmissionMultiplier: 0
     - _GITDEMaxEmissionMultiplier1: 0
@@ -782,9 +789,11 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 1
     - _GlossyReflections: 1
+    - _HighIntensity: 1.5
     - _IgnoreFog: 0
     - _Inverse_Clipping: 0
     - _InvertSmoothness: 0
+    - _LightScalar: 1
     - _LightingAOTexUV: 0
     - _LightingAdditiveDetailStrength: 1
     - _LightingAdditiveEnable: 1
@@ -821,6 +830,7 @@ Material:
     - _LightingWrappedWrap: 0
     - _LineWidth: 0.6
     - _LockTooltip: 0
+    - _LowIntensity: 1.08
     - _MainAlphaToCoverage: 0
     - _MainBrightness: 0
     - _MainColorAdjustTextureUV: 0
@@ -942,6 +952,7 @@ Material:
     - _RGBNormalBlend: 0
     - _RGBRed_UV: 0
     - _RGBUseVertexColors: 0
+    - _RampLevels: 2
     - _RgbNormalAScale: 0
     - _RgbNormalAUV: 0
     - _RgbNormalBScale: 0
@@ -951,7 +962,9 @@ Material:
     - _RgbNormalRScale: 0
     - _RgbNormalRUV: 0
     - _RgbNormalsEnabled: 0
+    - _RimAlpha: 0
     - _RimBrighten: 0
+    - _RimDropOff: 0
     - _RimEnviroBlur: 0.7
     - _RimEnviroIntensity: 1
     - _RimEnviroMaskUV: 0
@@ -965,6 +978,7 @@ Material:
     - _RimLightNormal: 1
     - _RimLightingInvert: 0
     - _RimMaskUV: 0
+    - _RimPower: 0
     - _RimSharpness: 0.25
     - _RimStrength: 0
     - _RimTexUV: 0
@@ -1401,6 +1415,7 @@ Material:
     - _FlipbookMaskPan: {r: 0, g: 0, b: 0, a: 0}
     - _FlipbookScaleOffset: {r: 1, g: 1, b: 0, a: 0}
     - _FlipbookTexArrayPan: {r: 0, g: 0, b: 0, a: 0}
+    - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
     - _GlitterColor: {r: 1, g: 1, b: 1, a: 1}
     - _GlitterColorMapPan: {r: 0, g: 0, b: 0, a: 0}
     - _GlitterMaskPan: {r: 0, g: 0, b: 0, a: 0}
@@ -1411,11 +1426,13 @@ Material:
     - _GlitterTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _GlitterUVPanning: {r: 0, g: 0, b: 0, a: 0}
     - _GreenColor: {r: 1, g: 1, b: 1, a: 1}
+    - _HighColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightingAOTexPan: {r: 0, g: 0, b: 0, a: 0}
     - _LightingDetailShadowsPan: {r: 0, g: 0, b: 0, a: 0}
     - _LightingShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightingShadowMaskPan: {r: 0, g: 0, b: 0, a: 0}
     - _LineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LowColor: {r: 1, g: 1, b: 1, a: 1}
     - _MainColorAdjustTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainFadeTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainTexPan: {r: 0, g: 0, b: 0, a: 0}
@@ -1453,6 +1470,7 @@ Material:
     - _RgbNormalBPan: {r: 0, g: 0, b: 0, a: 0}
     - _RgbNormalGPan: {r: 0, g: 0, b: 0, a: 0}
     - _RgbNormalRPan: {r: 0, g: 0, b: 0, a: 0}
+    - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimEnviroMaskPan: {r: 0, g: 0, b: 0, a: 0}
     - _RimLightColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimMaskPan: {r: 0, g: 0, b: 0, a: 0}
