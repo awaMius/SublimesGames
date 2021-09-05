@@ -31,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
     //Energy Controller
 
-    public float maxEnergy = 10f, currentEnergy, EnergyLostPerRunningFrame = 0.1f, EnergyHideBlend = 0.01f, EnergyShowBlend = 0.05f;
+    public float maxEnergy = 10f, currentEnergy, EnergyLostPerRunningFrame = 0.1f, EnergyHideBlend = 0.01f, EnergyShowBlend = 0.05f, EnergyGainIdle = 0.4f, EnergyGainTrot = 0.1f, EnergyGainWalking = 0.25f;
     public Slider EnergyBar;
     public CanvasGroup EnergyGroup;
 
@@ -61,9 +61,10 @@ public class PlayerMovement : MonoBehaviour
 
 
         //energyController
-        if (currentEnergy < maxEnergy && !Input.GetKey(KeyCode.LeftShift))
-            currentEnergy = currentEnergy + EnergyLostPerRunningFrame;
-
+        if (currentEnergy < maxEnergy && !Input.GetKey(KeyCode.LeftShift) && direction.magnitude <= 0.1f)
+        {
+            if (speed <= 0) currentEnergy = currentEnergy + EnergyGainIdle; else currentEnergy = currentEnergy + EnergyLostPerRunningFrame;  
+        }
         if (currentEnergy > maxEnergy) { 
             currentEnergy = maxEnergy;
         }
@@ -86,6 +87,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (direction.magnitude >= 0.1f)
         {
+            if (currentEnergy < maxEnergy && !Input.GetKey(KeyCode.LeftShift))
+            {
+                if (speed < 2.1f && speed > 0.1f) currentEnergy = currentEnergy + EnergyGainWalking;
+                if (speed < 4.1f && speed > 2.1f) currentEnergy = currentEnergy + EnergyGainTrot;
+            }
+
             if (direction.x != 0f & !updateDirection & FirstDirectionInput | direction.z != 0f & !updateDirection & FirstDirectionInput)
             {
                 Invoke("UpdateDirection", directionCheckerDelay);
