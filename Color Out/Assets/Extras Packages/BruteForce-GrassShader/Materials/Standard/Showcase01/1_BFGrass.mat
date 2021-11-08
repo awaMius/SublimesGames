@@ -82,8 +82,8 @@ Material:
     - _DstBlend: 0
     - _FadeAmplitude: 28
     - _FadeDistance: 16
-    - _FadeDistanceEnd: 30
-    - _FadeDistanceStart: 20
+    - _FadeDistanceEnd: 60
+    - _FadeDistanceStart: 40
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -116,6 +116,7 @@ Material:
     - _TilingN2: 1.91
     - _TilingN3: 1
     - _UVSec: 0
+    - _UseAmbientLight: 0
     - _UsePR: 0
     - _UseRT: 1
     - _UseShadow: 1

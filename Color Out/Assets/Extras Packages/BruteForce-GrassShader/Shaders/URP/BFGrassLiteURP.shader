@@ -54,6 +54,7 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 		_NoisePower("NoisePower", Float) = 2
 		[Toggle(USE_RT)] _UseRT("Use RenderTexture Effect", Float) = 1
 		[Toggle(USE_S)] _UseShadow("Use Shadows", Float) = 1
+		[Toggle(USE_VR)] _UseVR("Use For VR", Float) = 0
 
 		[Header(Procedural Tiling)]
 		[Space]
@@ -68,6 +69,7 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 		[Header(Lighting Parameters)]
 		[Space]
 		_LightIntensity("Additional Lights Intensity", Range(0.00, 2)) = 1
+		[Toggle(USE_AL)] _UseAmbientLight("Use Ambient Light", Float) = 0
 	}
 		SubShader
 		{
@@ -87,6 +89,8 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 			#pragma shader_feature USE_PR
 			#pragma shader_feature USE_S
 			#pragma shader_feature USE_WC
+			#pragma shader_feature USE_AL
+			#pragma shader_feature USE_VR
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -103,7 +107,9 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
 				float3 normal : NORMAL;
+#ifdef USE_VR
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					half4 texcoord1 : TEXCOORD1;
 #endif
@@ -117,7 +123,9 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 				float3 normal : TEXCOORD2;
 				float4 shadowCoord : TEXCOORD4;
 				float fogCoord : TEXCOORD5;
+#ifdef USE_VR
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
 #endif
@@ -132,8 +140,10 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 				float3 normal : TEXCOORD3;
 				float4 shadowCoord : TEXCOORD4;
 				float fogCoord : TEXCOORD5;
+#ifdef USE_VR
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 					UNITY_VERTEX_OUTPUT_STEREO
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
 #endif
@@ -198,16 +208,19 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 				float2 dy = ddy(UV);
 
 				//blend samples with calculated weights
-				return mul(tex2D(tex, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) +
+				float4 stochasticTex = mul(tex2D(tex, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) +
 					mul(tex2D(tex, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) +
 					mul(tex2D(tex, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
+				return stochasticTex;
 			}
 
 			v2g vert(appdata v)
 			{
 				v2g o;
+#ifdef USE_VR
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 				VertexPositionInputs vertexInput = GetVertexPositionInputs(v.vertex.xyz);
 				o.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
 
@@ -232,9 +245,11 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 				// Loop 3 times for the base ground geometry
 				for (int i = 0; i < 3; i++)
 				{
+#ifdef USE_VR
 					UNITY_SETUP_INSTANCE_ID(input[i]);
 					UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 					o.uv = input[i].uv;
 					o.pos = input[i].pos;
 					o.color = 0.0 + _GrassCut;
@@ -264,9 +279,11 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 						float4 offsetNormal = _OffsetVector * i*0.01;
 						for (int ii = 0; ii < 3; ii++)
 						{
+#ifdef USE_VR
 							UNITY_SETUP_INSTANCE_ID(input[ii]);
 							UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 							UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 							P = input[ii].shadowCoord + _OffsetVector * _NumberOfStacks*0.01;
 							float4 NewNormal = float4(input[ii].normal,0); // problem is here
 
@@ -411,6 +428,9 @@ Shader "BruteForceURP/InteractiveGrassLiteURP"
 					Light light = GetAdditionalLight(ii, i.worldPos);
 					col.xyz += (light.color * light.distanceAttenuation * light.distanceAttenuation) * (_LightIntensity * 0.5);
 				}
+#ifdef USE_AL
+				col.rgb = saturate(col.rgb + (SampleSH(i.normal) - 0.33) * 0.33);
+#endif
 				col.xyz = MixFog(col.xyz, i.fogCoord);
 
 				return col;

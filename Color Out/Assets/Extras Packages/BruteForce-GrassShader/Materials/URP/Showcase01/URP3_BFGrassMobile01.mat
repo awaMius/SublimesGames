@@ -97,6 +97,8 @@ Material:
     - _OcclusionStrength: 1
     - _OffsetValue: 0.4
     - _Parallax: 0.02
+    - _ProceduralDistance: 5.5
+    - _ProceduralStrength: 1.5
     - _RTEffect: 0
     - _RimMax: 0.664
     - _RimMin: 0.051
@@ -110,11 +112,17 @@ Material:
     - _TilingN2: 0.05
     - _TilingN3: 1
     - _UVSec: 0
+    - _UseAmbientLight: 0
+    - _UsePR: 0
     - _UseRT: 1
     - _UseShadow: 1
     - _UseShadowCast: 0
+    - _UseVR: 0
+    - _UseWC: 0
     - _WindForce: 0.25
     - _WindMovement: 0.55
+    - _WorldRotation: 0
+    - _WorldScale: 10
     - _ZWrite: 1
     - __NumberOfStacks: 1
     m_Colors:

@@ -103,6 +103,7 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 		_TilingN2("TilingOfNoiseColor", Float) = 0.05
 		_NoisePower("NoisePower", Float) = 2
 		[Toggle(USE_RT)] _UseRT("Use RenderTexture Effect", Float) = 1
+		[Toggle(USE_VR)] _UseVR("Use For VR", Float) = 0
 
 		[Header(Terrain)]
 		[Space]
@@ -110,6 +111,10 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 		[Toggle(USE_BP)] _UseBiplanar("Use Biplanar", Float) = 0
 		_BiPlanarStrength("BiPlanarStrength", Float) = 1
 		_BiPlanarSize("BiPlanarSize", Float) = 1
+			
+		[Header(Lighting Parameters)]
+		[Space]
+		[Toggle(USE_AL)] _UseAmbientLight("Use Ambient Light", Float) = 0
 
 	}
 		SubShader
@@ -128,6 +133,8 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 			#pragma prefer_hlslcc gles
 			#pragma shader_feature USE_RT
 			#pragma shader_feature USE_BP
+			#pragma shader_feature USE_AL
+			#pragma shader_feature USE_VR
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -143,7 +150,9 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
 				float3 normal : NORMAL;
+#ifdef USE_VR			
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					half4 texcoord1 : TEXCOORD1;
 #endif
@@ -157,7 +166,9 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				float3 normal : TEXCOORD2;
 				float4 shadowCoord : TEXCOORD4; 
 				float fogCoord : TEXCOORD5;
+#ifdef USE_VR			
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
 #endif
@@ -172,8 +183,10 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				float3 normal : TEXCOORD3;
 				float4 shadowCoord : TEXCOORD4;
 				float fogCoord : TEXCOORD5;
+#ifdef USE_VR			
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
 #endif
@@ -230,8 +243,10 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 			v2g vert(appdata v)
 			{
 				v2g o;
+#ifdef USE_VR			
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 				VertexPositionInputs vertexInput = GetVertexPositionInputs(v.vertex.xyz);
 				o.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
 
@@ -256,9 +271,11 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				// Loop 3 times for the base ground geometry
 				for (int i = 0; i < 3; i++)
 				{
+#ifdef USE_VR			
 					UNITY_SETUP_INSTANCE_ID(input[i]);
 					UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 					o.uv = input[i].uv;
 					o.pos = input[i].pos;
 					o.color = 0.0 + _GrassCut;
@@ -289,9 +306,11 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 						float4 offsetNormal = _OffsetVector * i*0.01;
 						for (int ii = 0; ii < 3; ii++)
 						{
+#ifdef USE_VR			
 							UNITY_SETUP_INSTANCE_ID(input[ii]);
 							UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 							UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 							P = input[ii].shadowCoord + _OffsetVector * _NumberOfStacks*0.01;
 							float4 NewNormal = float4(input[ii].normal,0); // problem is here
 
@@ -524,6 +543,9 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 					Light light = GetAdditionalLight(ii, i.worldPos);
 					col.xyz += light.color * light.distanceAttenuation* light.distanceAttenuation;
 				}
+#ifdef USE_AL
+				col.rgb = saturate(col.rgb + (SampleSH(i.normal) - 0.33) * 0.33);
+#endif
 				col.xyz = MixFog(col.xyz, i.fogCoord);
 
 				return col;
@@ -548,6 +570,7 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 			#pragma shader_feature USE_SC
 			#pragma shader_feature USE_RT
 			#pragma shader_feature USE_BP
+			#pragma shader_feature USE_VR
 
 			#include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -562,7 +585,9 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				float4 vertex   : POSITION;
 				float3 normal     : NORMAL;
 				float2 uv     : TEXCOORD0;
+#ifdef USE_VR		
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 			};
 			
 			struct v2g
@@ -571,7 +596,9 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				float4 pos : SV_POSITION;
 				float4 objPos : TEXCOORD1;
 				float3 normal : TEXCOORD3;
+#ifdef USE_VR		
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 			};
 
 			struct g2f
@@ -581,8 +608,10 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 				float3 worldPos : TEXCOORD1;
 				float3 normal : TEXCOORD3;
 				float1 color : TEXCOORD2;
+#ifdef USE_VR		
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 					UNITY_VERTEX_OUTPUT_STEREO
+#endif
 			};
 
 			Texture2D _MainTex;
@@ -625,8 +654,10 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 			v2g vert(appdata v)
 			{
 				v2g o;
+#ifdef USE_VR		
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 				o.objPos = v.vertex;
 				//o.pos = GetVertexPositionInputs(v.vertex).positionCS;
 				o.pos = TransformWorldToHClip(ApplyShadowBias(GetVertexPositionInputs(v.vertex).positionWS, GetVertexNormalInputs(v.normal).normalWS, _LightDirection));
@@ -640,14 +671,18 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 			void geom(triangle v2g input[3], inout TriangleStream<g2f> tristream) {
 
 				g2f o;
+#ifdef USE_VR		
 				UNITY_SETUP_INSTANCE_ID(input);
+#endif
 				_OffsetValue *= 0.01;
 
 				for (int i = 0; i < 3; i++)
 				{
+#ifdef USE_VR		
 					UNITY_SETUP_INSTANCE_ID(input[i]);
 					UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 					o.uv = input[i].uv;
 					o.pos = input[i].pos;
 					o.color = float3(0 + _GrassCut, 0 + _GrassCut, 0 + _GrassCut);
@@ -672,9 +707,11 @@ Shader "BruteForceURP/InteractiveGrassTerrainURP"
 					float4 offsetNormal = _OffsetVector * i*0.01;
 					for (int ii = 0; ii < 3; ii++)
 					{
+#ifdef USE_VR		
 						UNITY_SETUP_INSTANCE_ID(input[ii]);
 						UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 						UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 						float4 NewNormal = float4(input[ii].normal, 0);
 						objSpace = float4(input[ii].objPos + NewNormal * _OffsetValue*i + offsetNormal);
 						o.color = (i / (_NumberOfStacks - _GrassCut));

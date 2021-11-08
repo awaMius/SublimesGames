@@ -40,6 +40,7 @@ Shader "BruteForce/InteractiveGrassMobile"
 		[Toggle(USE_RT)] _UseRT("Use RenderTexture Effect", Float) = 1
 		[Toggle(USE_S)] _UseShadow("Use Shadows", Float) = 1
 		[Toggle(USE_SC)] _UseShadowCast("Use Shadow Casting", Float) = 0
+		[Toggle(USE_VR)] _UseVR("Use For VR", Float) = 0
 
 		[Header(Procedural Tiling)]
 		[Space]
@@ -51,6 +52,10 @@ Shader "BruteForce/InteractiveGrassMobile"
 		[Toggle(USE_WC)] _UseWC("Use World Coordinates", Float) = 0
 		_WorldScale("World Scale", Float) = 10
 		_WorldRotation("World Rotation", Range(0, 360)) = 0
+
+		[Header(Lighting Parameters)]
+		[Space]
+		[Toggle(USE_AL)] _UseAmbientLight("Use Ambient Light", Float) = 0
 	}
 		SubShader
 		{
@@ -68,7 +73,9 @@ Shader "BruteForce/InteractiveGrassMobile"
 			#pragma shader_feature USE_SC
 			#pragma shader_feature USE_S
 			#pragma shader_feature USE_PR
+			#pragma shader_feature USE_AL
 			#pragma shader_feature USE_WC
+			#pragma shader_feature USE_VR
 			#define SHADOWS_SCREEN
 			#include "AutoLight.cginc"
 			#include "UnityCG.cginc"
@@ -80,9 +87,14 @@ Shader "BruteForce/InteractiveGrassMobile"
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
 				half1 color : COLOR;
+#ifdef USE_VR	
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					half4 texcoord1 : TEXCOORD1;
+#endif
+#ifdef USE_AL
+				float4 normal : NORMAL;
 #endif
 			};
 
@@ -94,10 +106,15 @@ Shader "BruteForce/InteractiveGrassMobile"
 				UNITY_FOG_COORDS(1)
 				SHADOW_COORDS(3)
 				half1 color : COLOR;
+#ifdef USE_VR	
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
+#endif
+#ifdef USE_AL
+				float3 normal : TEXCOORD4;
 #endif
 			};
 			// Render Texture Effects //
@@ -150,21 +167,27 @@ Shader "BruteForce/InteractiveGrassMobile"
 				float2 dy = ddy(UV);
 
 				//blend samples with calculated weights
-				return mul(tex2D(tex, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) +
+				float4 stochasticTex = mul(tex2D(tex, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) +
 					mul(tex2D(tex, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) +
 					mul(tex2D(tex, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
+				return stochasticTex;
 			}
 
 			#define UnityObjectToWorld(o) mul(unity_ObjectToWorld, float4(o.xyz,1.0))
 			v2f vert(appdata v)
 			{
 				v2f o;
+#ifdef USE_VR	
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				o.color = v.color;
+#ifdef USE_AL
+				o.normal = v.normal;
+#endif
 				o.worldPos = UnityObjectToWorld(v.vertex);
 				o._ShadowCoord = ComputeScreenPos(o.pos);
 #ifdef LIGHTMAP_ON
@@ -251,7 +274,7 @@ Shader "BruteForce/InteractiveGrassMobile"
 				}
 				if (_GrassCut > 0)
 				{
-					clip(i.color.r - 0.02);
+					clip(alpha / max(_GrassCut,0.001) - 0.02);
 				}
 
 				_Color *= 2;
@@ -279,6 +302,9 @@ Shader "BruteForce/InteractiveGrassMobile"
 					col.xyz *= _LightColor0;
 				}
 #endif				
+#endif
+#ifdef USE_AL
+				col.rgb = saturate(col.rgb + (ShadeSH9(half4(i.normal, 1)) - 0.5) * 0.5);
 #endif
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
@@ -435,7 +461,7 @@ Shader "BruteForce/InteractiveGrassMobile"
 				}
 				if (_GrassCut > 0)
 				{
-					clip(i.color.r - 0.02);
+					clip(alpha / max(_GrassCut, 0.001) - 0.02);
 				}
 				SHADOW_CASTER_FRAGMENT(i)
 #else

@@ -54,6 +54,7 @@ Shader "BruteForce/InteractiveGrass"
 		[Toggle(USE_RT)] _UseRT("Use RenderTexture Effect", Float) = 1
 		[Toggle(USE_S)] _UseShadow("Use Shadows", Float) = 1
 		[Toggle(USE_SC)] _UseShadowCast("Use Shadow Casting", Float) = 1
+		[Toggle(USE_VR)] _UseVR("Use For VR", Float) = 0
 
 		[Header(Procedural Tiling)]
 		[Space]
@@ -68,6 +69,7 @@ Shader "BruteForce/InteractiveGrass"
 		[Header(Lighting Parameters)]
 		[Space]
 		_LightIntensity("Additional Lights Intensity", Range(0.00, 2)) = 1
+		[Toggle(USE_AL)] _UseAmbientLight("Use Ambient Light", Float) = 0
 
 	}
 		SubShader
@@ -93,6 +95,8 @@ Shader "BruteForce/InteractiveGrass"
 			#pragma shader_feature USE_WC
 			#pragma shader_feature USE_S
 			#pragma shader_feature USE_SC
+			#pragma shader_feature USE_AL
+			#pragma shader_feature USE_VR
 
 			#define SHADOWS_SCREEN
 			#include "AutoLight.cginc"
@@ -108,7 +112,9 @@ Shader "BruteForce/InteractiveGrass"
 					float4 vertex : POSITION;
 					float2 uv : TEXCOORD0;
 					float4 normal : NORMAL;
+#ifdef USE_VR
 					UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 						half4 texcoord1 : TEXCOORD1;
 #endif
@@ -122,7 +128,10 @@ Shader "BruteForce/InteractiveGrass"
 					float3 normal : TEXCOORD2;
 					SHADOW_COORDS(4)
 					UNITY_FOG_COORDS(5)
+
+#ifdef USE_VR
 					UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 						float2 lmap : TEXCOORD6;
 #endif
@@ -137,8 +146,10 @@ Shader "BruteForce/InteractiveGrass"
 					float3 normal : TEXCOORD3;
 					SHADOW_COORDS(4)
 					UNITY_FOG_COORDS(5)
+#ifdef USE_VR
 					UNITY_VERTEX_INPUT_INSTANCE_ID
 					UNITY_VERTEX_OUTPUT_STEREO
+#endif
 #ifdef LIGHTMAP_ON
 						float2 lmap : TEXCOORD6;
 #endif
@@ -201,17 +212,19 @@ Shader "BruteForce/InteractiveGrass"
 					float2 dx = ddx(UV);
 					float2 dy = ddy(UV);
 
-					return mul(tex2D(tex, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) +
+					float4 stochasticTex = mul(tex2D(tex, UV + hash2D2D(BW_vx[0].xy), dx, dy), BW_vx[3].x) +
 						mul(tex2D(tex, UV + hash2D2D(BW_vx[1].xy), dx, dy), BW_vx[3].y) +
 						mul(tex2D(tex, UV + hash2D2D(BW_vx[2].xy), dx, dy), BW_vx[3].z);
+					return stochasticTex;
 				}
 
 				v2g vert(appdata v)
 				{
 					v2g o;
+#ifdef USE_VR
 					UNITY_SETUP_INSTANCE_ID(v);
 					UNITY_TRANSFER_INSTANCE_ID(v, o);
-
+#endif
 					o.objPos = v.vertex;
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.uv = TRANSFORM_TEX(v.uv, _MainTex);
@@ -234,9 +247,11 @@ Shader "BruteForce/InteractiveGrass"
 					// Loop 3 times for the base ground geometry
 					for (int i = 0; i < 3; i++)
 					{
+#ifdef USE_VR
 						UNITY_SETUP_INSTANCE_ID(input[i]);
 						UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 						UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 						o.uv = input[i].uv;
 						o.pos = input[i].pos;
 						o.color = 0.0 + _GrassCut;
@@ -266,9 +281,11 @@ Shader "BruteForce/InteractiveGrass"
 							float4 offsetNormal = _OffsetVector * i*0.01;
 							for (int ii = 0; ii < 3; ii++)
 							{
+#ifdef USE_VR
 								UNITY_SETUP_INSTANCE_ID(input[ii]);
 								UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 								UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 #ifdef LIGHTMAP_ON
 								o.lmap = input[ii].lmap.xy;
 #endif
@@ -302,7 +319,9 @@ Shader "BruteForce/InteractiveGrass"
 				}
 				half4 frag(g2f i) : SV_Target
 				{
+#ifdef USE_VR
 					UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+#endif
 				    //Calculate Distance to camera
 					float dist = 1;
 					float2 mainUV;
@@ -401,6 +420,9 @@ Shader "BruteForce/InteractiveGrass"
 					}
 #endif				
 #endif
+#ifdef USE_AL
+					col.rgb = saturate( col.rgb + (ShadeSH9(half4(i.normal, 1))-0.5)*0.5);
+#endif
 					UNITY_APPLY_FOG(i.fogCoord, col);
 					return col;
 				}
@@ -421,6 +443,7 @@ Shader "BruteForce/InteractiveGrass"
 			#pragma shader_feature USE_SC
 			#pragma shader_feature USE_S
 			#pragma shader_feature USE_WC
+			#pragma shader_feature USE_VR
 			#include "UnityCG.cginc"
 
 		struct appdata
@@ -428,7 +451,9 @@ Shader "BruteForce/InteractiveGrass"
 			float4 vertex : POSITION;
 			float2 uv : TEXCOORD0;
 			float4 normal : NORMAL;
+#ifdef USE_VR
 			UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 		};
 
 		struct v2g
@@ -437,7 +462,9 @@ Shader "BruteForce/InteractiveGrass"
 			float4 pos : SV_POSITION;
 			float4 objPos : TEXCOORD1;
 			float3 normal : TEXCOORD3;
+#ifdef USE_VR
 			UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 		};
 
 		struct g2f
@@ -447,8 +474,10 @@ Shader "BruteForce/InteractiveGrass"
 			float3 normal : TEXCOORD3;
 			float1 color : TEXCOORD2;
 			V2F_SHADOW_CASTER;
+#ifdef USE_VR
 			UNITY_VERTEX_INPUT_INSTANCE_ID
 			UNITY_VERTEX_OUTPUT_STEREO
+#endif
 		};
 
 		struct SHADOW_VERTEX
@@ -481,8 +510,10 @@ Shader "BruteForce/InteractiveGrass"
 					v2g vert(appdata v)
 					{
 						v2g o;
+#ifdef USE_VR
 						UNITY_SETUP_INSTANCE_ID(v);
 						UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 						o.objPos = v.vertex;
 						o.pos = UnityObjectToClipPos(v.vertex);
 						o.normal = v.normal;
@@ -504,9 +535,11 @@ Shader "BruteForce/InteractiveGrass"
 
 						for (int i = 0; i < 3; i++)
 						{
+#ifdef USE_VR
 							UNITY_SETUP_INSTANCE_ID(input[i]);
 							UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 							UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 							o.uv = input[i].uv;
 							o.pos = input[i].pos;
 							o.color = float3(0 + _GrassCut, 0 + _GrassCut, 0 + _GrassCut);
@@ -532,9 +565,11 @@ Shader "BruteForce/InteractiveGrass"
 							float4 offsetNormal = _OffsetVector * i*0.01;
 							for (int ii = 0; ii < 3; ii++)
 							{
+#ifdef USE_VR
 								UNITY_SETUP_INSTANCE_ID(input[ii]);
 								UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 								UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 								float thicknessModifier = 1;
 								float dist = distance(_WorldSpaceCameraPos, UnityObjectToWorld(input[ii].objPos));
 								if (dist > 0)
@@ -645,6 +680,7 @@ Shader "BruteForce/InteractiveGrass"
 			#pragma geometry geom
 			#pragma shader_feature USE_RT
 			#pragma shader_feature USE_WC
+			#pragma shader_feature USE_VR
 
 			#include "UnityCG.cginc"
 			uniform float4 _LightColor0;
@@ -681,7 +717,9 @@ Shader "BruteForce/InteractiveGrass"
 				  float3 normal : NORMAL;
 				  float4 worldPos : TEXCOORD1;
 				  float4 posLight : TEXCOORD2;
+#ifdef USE_VR
 				  UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 			  };
 
 			  struct v2g {
@@ -691,7 +729,9 @@ Shader "BruteForce/InteractiveGrass"
 				 float4 worldPos : TEXCOORD1;
 				 float4 posLight : TEXCOORD2;
 				 float4 objPos : TEXCOORD3;
+#ifdef USE_VR
 				 UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 			  };
 
 			  struct g2f {
@@ -701,16 +741,20 @@ Shader "BruteForce/InteractiveGrass"
 				  float4 posLight : TEXCOORD2;
 				  float1 color : TEXCOORD3;
 				  float3 normal : TEXCOORD4;
+#ifdef USE_VR
 				  UNITY_VERTEX_INPUT_INSTANCE_ID
 				  UNITY_VERTEX_OUTPUT_STEREO
+#endif
 			  };
 
 			  v2g vert(appdata v)
 			  {
 				  v2g o;
 
+#ifdef USE_VR
 				  UNITY_SETUP_INSTANCE_ID(v);
 				  UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 				  float4x4 modelMatrix = unity_ObjectToWorld;
 				  float4x4 modelMatrixInverse = unity_WorldToObject;
 				  o.objPos = v.vertex;
@@ -733,9 +777,11 @@ Shader "BruteForce/InteractiveGrass"
 
 				  for (int i = 0; i < 3; i++)
 				  {
+#ifdef USE_VR
 					  UNITY_SETUP_INSTANCE_ID(input[i]);
 					  UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 					  UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 					  o.uv = input[i].uv;
 					  o.pos = input[i].pos;
 					  o.color = float3(0 + _GrassCut, 0 + _GrassCut, 0 + _GrassCut);
@@ -761,9 +807,11 @@ Shader "BruteForce/InteractiveGrass"
 					  float4 offsetNormal = _OffsetVector * i*0.01;
 					  for (int ii = 0; ii < 3; ii++)
 					  {
+#ifdef USE_VR
 						  UNITY_SETUP_INSTANCE_ID(input[ii]);
 						  UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 						  UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 						  float thicknessModifier = 1;
 						  float dist = distance(_WorldSpaceCameraPos, UnityObjectToWorld(input[ii].objPos));
 						  if (dist > 0)

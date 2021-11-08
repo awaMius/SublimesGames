@@ -121,7 +121,7 @@ Material:
     - _GrassShading: 0.088
     - _GrassThinness: 0.87
     - _GrassThinnessIntersection: 0.46
-    - _LightIntensity: 1
+    - _LightIntensity: 2
     - _Metallic: 0
     - _MinimumNumberStacks: 2
     - _Mode: 0
@@ -151,12 +151,17 @@ Material:
     - _TilingN2: 0.05
     - _TilingN3: 0.4
     - _UVSec: 0
+    - _UseAmbientLight: 0
     - _UsePR: 0
     - _UseRT: 1
     - _UseShadow: 1
     - _UseShadowCast: 1
+    - _UseVR: 0
+    - _UseWC: 0
     - _WindForce: 0.3
     - _WindMovement: 0.2
+    - _WorldRotation: 0
+    - _WorldScale: 10
     - _ZWrite: 1
     - __NumberOfStacks: 17
     m_Colors:

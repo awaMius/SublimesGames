@@ -114,9 +114,11 @@ Material:
     - _TilingN2: 0.05
     - _TilingN3: 1
     - _UVSec: 0
+    - _UseAmbientLight: 0
     - _UsePR: 0
     - _UseRT: 0
     - _UseShadow: 1
+    - _UseVR: 0
     - _UseWC: 0
     - _WindForce: 0.25
     - _WindMovement: 0.55

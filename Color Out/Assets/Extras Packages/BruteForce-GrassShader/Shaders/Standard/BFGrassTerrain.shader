@@ -104,6 +104,7 @@ Shader "BruteForce/InteractiveGrassTerrain"
 		_TilingN2("Tiling Of Noise Color", Float) = 0.05
 		_NoisePower("Noise Power", Float) = 2
 		[Toggle(USE_RT)] _UseRT("Use RenderTexture Effect", Float) = 1
+		[Toggle(USE_VR)] _UseVR("Use For VR", Float) = 0
 
 		[Header(Terrain)]
 		[Space]
@@ -111,6 +112,10 @@ Shader "BruteForce/InteractiveGrassTerrain"
 		[Toggle(USE_BP)] _UseBiplanar("Use Biplanar", Float) = 0
 		_BiPlanarStrength("BiPlanarStrength", Float) = 1
 		_BiPlanarSize("BiPlanarSize", Float) = 1
+
+		[Header(Lighting Parameters)]
+		[Space]
+		[Toggle(USE_AL)] _UseAmbientLight("Use Ambient Light", Float) = 0
 
 	}
 		SubShader
@@ -137,6 +142,8 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			#pragma multi_compile _ LIGHTMAP_ON
 			#pragma shader_feature USE_RT
 			#pragma shader_feature USE_BP
+			#pragma shader_feature USE_AL
+			#pragma shader_feature USE_VR
 
 			uniform float4 _LightColor0;
 			uniform sampler2D _LightTexture0;
@@ -146,7 +153,9 @@ Shader "BruteForce/InteractiveGrassTerrain"
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;
 				float4 normal : NORMAL;
+#ifdef USE_VR
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					half4 texcoord1 : TEXCOORD1;
 #endif
@@ -160,7 +169,9 @@ Shader "BruteForce/InteractiveGrassTerrain"
 				float3 normal : TEXCOORD2;
 				SHADOW_COORDS(4)
 				UNITY_FOG_COORDS(5)
+#ifdef USE_VR
 				UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
 #endif
@@ -175,8 +186,10 @@ Shader "BruteForce/InteractiveGrassTerrain"
 				float3 normal : TEXCOORD3;
 				SHADOW_COORDS(4)
 				UNITY_FOG_COORDS(5)
+#ifdef USE_VR
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
+#endif
 #ifdef LIGHTMAP_ON
 					float2 lmap : TEXCOORD6;
 #endif
@@ -217,7 +230,6 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			//sampler2D _Splat0, _Splat1, _Splat2, _Splat3, _Splat4, _Splat5, _Splat6, _Splat7;
 			//sampler2D _Normal0,_Normal1, _Normal2, _Normal3, _Normal4, _Normal5, _Normal6, _Normal7;
 			SamplerState my_linear_repeat_sampler;
-			SamplerState my_trilinear_repeat_sampler;
 			SamplerState my_linear_clamp_sampler;
 
 			Texture2D _Splat0;
@@ -241,8 +253,10 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			v2g vert(appdata v)
 			{
 				v2g o;
+#ifdef USE_VR
 				UNITY_SETUP_INSTANCE_ID(v);
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 				o.objPos = v.vertex;
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
@@ -267,9 +281,11 @@ Shader "BruteForce/InteractiveGrassTerrain"
 				// Loop 3 times for the base ground geometry
 				for (int i = 0; i < 3; i++)
 				{
+#ifdef USE_VR
 					UNITY_SETUP_INSTANCE_ID(input[i]);
 					UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 					o.uv = input[i].uv;
 					o.pos = input[i].pos;
 					o.color = 0.0 + _GrassCut;
@@ -299,9 +315,11 @@ Shader "BruteForce/InteractiveGrassTerrain"
 						float4 offsetNormal = _OffsetVector * i*0.01;
 						for (int ii = 0; ii < 3; ii++)
 						{
+#ifdef USE_VR
 							UNITY_SETUP_INSTANCE_ID(input[ii]);
 							UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 							UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 #ifdef LIGHTMAP_ON
 							o.lmap = input[ii].lmap.xy;
 #endif
@@ -371,14 +389,14 @@ Shader "BruteForce/InteractiveGrassTerrain"
 				half4 splat_control1 = _Control1.Sample(my_linear_clamp_sampler, i.uv + dis.xy * 0.05);
 
 				// SplatTexture //
-				float3 grassPatternSplat0 = _Splat0.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat0_ST.z + dis.xy);
-				float3 grassPatternSplat1 = _Splat1.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat1_ST.z + dis.xy);
-				float3 grassPatternSplat2 = _Splat2.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat2_ST.z + dis.xy);
-				float3 grassPatternSplat3 = _Splat3.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat3_ST.z + dis.xy);
-				float3 grassPatternSplat4 = _Splat4.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat4_STn.z + dis.xy);
-				float3 grassPatternSplat5 = _Splat5.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat5_STn.z + dis.xy);
-				float3 grassPatternSplat6 = _Splat6.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat6_STn.z + dis.xy);
-				float3 grassPatternSplat7 = _Splat7.Sample(my_trilinear_repeat_sampler, i.uv * _TilingN1 * _Splat7_STn.z + dis.xy);
+				float3 grassPatternSplat0 = _Splat0.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat0_ST.z + dis.xy);
+				float3 grassPatternSplat1 = _Splat1.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat1_ST.z + dis.xy);
+				float3 grassPatternSplat2 = _Splat2.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat2_ST.z + dis.xy);
+				float3 grassPatternSplat3 = _Splat3.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat3_ST.z + dis.xy);
+				float3 grassPatternSplat4 = _Splat4.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat4_STn.z + dis.xy);
+				float3 grassPatternSplat5 = _Splat5.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat5_STn.z + dis.xy);
+				float3 grassPatternSplat6 = _Splat6.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat6_STn.z + dis.xy);
+				float3 grassPatternSplat7 = _Splat7.Sample(my_linear_repeat_sampler, i.uv * _TilingN1 * _Splat7_STn.z + dis.xy);
 
 				float3 normalDir = i.normal;
 				float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
@@ -406,7 +424,7 @@ Shader "BruteForce/InteractiveGrassTerrain"
 				colGround = lerp(colGround, grassPatternSplat7 * _Metallic7 * _Specular7, saturate(splat_control1.a * 3) * _Metallic7);
 				colGround.xyz *= _GroundColor * 2;
 
-				half3 NoGrass = _NoGrassTex.Sample(my_trilinear_repeat_sampler, i.uv + dis.xy * 0.05);
+				half3 NoGrass = _NoGrassTex.Sample(my_linear_repeat_sampler, i.uv + dis.xy * 0.05);
 				NoGrass.r = saturate(NoGrass.r - splat_control.r * _Metallic0 - splat_control.g * _Metallic1 - splat_control.b * _Metallic2 - splat_control.a * _Metallic3
 					- splat_control1.r * _Metallic4 - splat_control1.g * _Metallic5 - splat_control1.b * _Metallic6 - splat_control1.a * _Metallic7);
 				
@@ -427,19 +445,23 @@ Shader "BruteForce/InteractiveGrassTerrain"
 						colGround.xyz *= _LightColor0;
 					}
 #endif			
+
+#ifdef USE_AL
+					colGround.rgb = saturate(colGround.rgb + (ShadeSH9(half4(i.normal, 1)) - 0.5) * 0.5);
+#endif
 					UNITY_APPLY_FOG(i.fogCoord, colGround);
 
 					return half4(colGround, 1);
 				}
 
-				float3 colNormal0 = _Normal0.Sample(my_trilinear_repeat_sampler, i.uv * _Splat0_ST.z + dis.xy * 0.09) * _Specular0;
-				float3 colNormal1 = _Normal1.Sample(my_trilinear_repeat_sampler, i.uv * _Splat1_ST.z + dis.xy * 0.09) * _Specular1;
-				float3 colNormal2 = _Normal2.Sample(my_trilinear_repeat_sampler, i.uv * _Splat2_ST.z + dis.xy * 0.09) * _Specular2;
-				float3 colNormal3 = _Normal3.Sample(my_trilinear_repeat_sampler, i.uv * _Splat3_ST.z + dis.xy * 0.09) * _Specular3;
-				float3 colNormal4 = _Normal4.Sample(my_trilinear_repeat_sampler, i.uv * _Splat4_STn.z + dis.xy * 0.09) * _Specular4;
-				float3 colNormal5 = _Normal5.Sample(my_trilinear_repeat_sampler, i.uv * _Splat5_STn.z + dis.xy * 0.09) * _Specular5;
-				float3 colNormal6 = _Normal6.Sample(my_trilinear_repeat_sampler, i.uv * _Splat6_STn.z + dis.xy * 0.09) * _Specular6;
-				float3 colNormal7 = _Normal7.Sample(my_trilinear_repeat_sampler, i.uv * _Splat7_STn.z + dis.xy * 0.09) * _Specular7;
+				float3 colNormal0 = _Normal0.Sample(my_linear_repeat_sampler, i.uv * _Splat0_ST.z + dis.xy * 0.09) * _Specular0;
+				float3 colNormal1 = _Normal1.Sample(my_linear_repeat_sampler, i.uv * _Splat1_ST.z + dis.xy * 0.09) * _Specular1;
+				float3 colNormal2 = _Normal2.Sample(my_linear_repeat_sampler, i.uv * _Splat2_ST.z + dis.xy * 0.09) * _Specular2;
+				float3 colNormal3 = _Normal3.Sample(my_linear_repeat_sampler, i.uv * _Splat3_ST.z + dis.xy * 0.09) * _Specular3;
+				float3 colNormal4 = _Normal4.Sample(my_linear_repeat_sampler, i.uv * _Splat4_STn.z + dis.xy * 0.09) * _Specular4;
+				float3 colNormal5 = _Normal5.Sample(my_linear_repeat_sampler, i.uv * _Splat5_STn.z + dis.xy * 0.09) * _Specular5;
+				float3 colNormal6 = _Normal6.Sample(my_linear_repeat_sampler, i.uv * _Splat6_STn.z + dis.xy * 0.09) * _Specular6;
+				float3 colNormal7 = _Normal7.Sample(my_linear_repeat_sampler, i.uv * _Splat7_STn.z + dis.xy * 0.09) * _Specular7;
 
 				colNormal1 = lerp(colNormal1, grassPatternSplat1 * _Specular1, _Metallic1);
 				colNormal2 = lerp(colNormal2, grassPatternSplat2 * _Specular2, _Metallic2);
@@ -455,7 +477,7 @@ Shader "BruteForce/InteractiveGrassTerrain"
 					+ colNormal4 * splat_control1.r + colNormal5 * splat_control1.g + colNormal6 * splat_control1.b + colNormal7 * splat_control1.a;
 				
 				
-				float3 noise = _Noise.Sample(my_trilinear_repeat_sampler, i.uv*_TilingN2 + dis.xy)*_NoisePower;
+				float3 noise = _Noise.Sample(my_linear_repeat_sampler, i.uv*_TilingN2 + dis.xy)*_NoisePower;
 
 
 				float3 grassPattern = grassPatternSplat0 * splat_control.r;
@@ -511,6 +533,9 @@ Shader "BruteForce/InteractiveGrassTerrain"
 					col.xyz *= _LightColor0;
 				}
 #endif				
+#ifdef USE_AL
+				col.rgb = saturate(col.rgb + (ShadeSH9(half4(i.normal, 1)) - 0.5) * 0.5);
+#endif
 				UNITY_APPLY_FOG(i.fogCoord, col);
 
 				return col;
@@ -533,6 +558,7 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			#pragma shader_feature USE_SC
 			#pragma shader_feature USE_RT
 			#pragma shader_feature USE_BP
+			#pragma shader_feature USE_VR
 			#include "UnityCG.cginc"
 
 		struct appdata
@@ -540,7 +566,9 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			float4 vertex : POSITION;
 			float2 uv : TEXCOORD0;
 			float4 normal : NORMAL;
+#ifdef USE_VR
 			UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 		};
 
 		struct v2g
@@ -549,7 +577,9 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			float4 pos : SV_POSITION;
 			float4 objPos : TEXCOORD1;
 			float3 normal : TEXCOORD3;
+#ifdef USE_VR
 			UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 		};
 
 		struct g2f
@@ -559,8 +589,10 @@ Shader "BruteForce/InteractiveGrassTerrain"
 			float3 normal : TEXCOORD3;
 			float1 color : TEXCOORD2;
 			V2F_SHADOW_CASTER;
+#ifdef USE_VR
 			UNITY_VERTEX_INPUT_INSTANCE_ID
 			UNITY_VERTEX_OUTPUT_STEREO
+#endif
 		};
 
 		struct SHADOW_VERTEX
@@ -608,8 +640,10 @@ Shader "BruteForce/InteractiveGrassTerrain"
 					v2g vert(appdata v)
 					{
 						v2g o;
+#ifdef USE_VR
 						UNITY_SETUP_INSTANCE_ID(v);
 						UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 						o.objPos = v.vertex;
 						o.pos = UnityObjectToClipPos(v.vertex);
 						o.uv = TRANSFORM_TEX(v.uv, _MainTex);
@@ -632,9 +666,11 @@ Shader "BruteForce/InteractiveGrassTerrain"
 
 						for (int i = 0; i < 3; i++)
 						{
+#ifdef USE_VR
 							UNITY_SETUP_INSTANCE_ID(input[i]);
 							UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 							UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 							o.uv = input[i].uv;
 							o.pos = input[i].pos;
 							o.color = float3(0 + _GrassCut, 0 + _GrassCut, 0 + _GrassCut);
@@ -659,9 +695,11 @@ Shader "BruteForce/InteractiveGrassTerrain"
 							float4 offsetNormal = _OffsetVector * i*0.01;
 							for (int ii = 0; ii < 3; ii++)
 							{
+#ifdef USE_VR
 								UNITY_SETUP_INSTANCE_ID(input[ii]);
 								UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 								UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 								float thicknessModifier = 1;
 								float dist = distance(_WorldSpaceCameraPos, UnityObjectToWorld(input[ii].objPos));
 								if (dist > 0)
@@ -796,6 +834,7 @@ Blend One One // Soft Additive
 			
 			#pragma shader_feature USE_RT
 			#pragma shader_feature USE_BP
+			#pragma shader_feature USE_VR
 		#include "UnityCG.cginc"
 		uniform float4 _LightColor0;
 		uniform float4x4 unity_WorldToLight;
@@ -857,7 +896,9 @@ Blend One One // Soft Additive
 			  float3 normal : NORMAL;
 			  float4 worldPos : TEXCOORD1;
 			  float4 posLight : TEXCOORD2;
+#ifdef USE_VR
 			  UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 		  };
 
 		  struct v2g {
@@ -867,7 +908,9 @@ Blend One One // Soft Additive
 			 float4 worldPos : TEXCOORD1;
 			 float4 posLight : TEXCOORD2;
 			 float4 objPos : TEXCOORD3;
+#ifdef USE_VR
 			 UNITY_VERTEX_INPUT_INSTANCE_ID
+#endif
 		  };
 
 		  struct g2f {
@@ -877,15 +920,19 @@ Blend One One // Soft Additive
 			  float4 posLight : TEXCOORD2;
 			  float1 color : TEXCOORD3;
 			  float3 normal : TEXCOORD4;
+#ifdef USE_VR
 			  UNITY_VERTEX_INPUT_INSTANCE_ID
 			  UNITY_VERTEX_OUTPUT_STEREO
+#endif
 		  };
 
 		  v2g vert(appdata v)
 		  {
 			  v2g o;
+#ifdef USE_VR
 			  UNITY_SETUP_INSTANCE_ID(v);
 			  UNITY_TRANSFER_INSTANCE_ID(v, o);
+#endif
 
 			  float4x4 modelMatrix = unity_ObjectToWorld;
 			  float4x4 modelMatrixInverse = unity_WorldToObject;
@@ -909,9 +956,11 @@ Blend One One // Soft Additive
 
 			  for (int i = 0; i < 3; i++)
 			  {
+#ifdef USE_VR
 				  UNITY_SETUP_INSTANCE_ID(input[i]);
 				  UNITY_TRANSFER_INSTANCE_ID(input[i], o);
 				  UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 				  o.uv = input[i].uv;
 				  o.pos = input[i].pos;
 				  o.color = float3(0 + _GrassCut, 0 + _GrassCut, 0 + _GrassCut);
@@ -937,9 +986,11 @@ Blend One One // Soft Additive
 				  float4 offsetNormal = _OffsetVector * i*0.01;
 				  for (int ii = 0; ii < 3; ii++)
 				  {
+#ifdef USE_VR
 					  UNITY_SETUP_INSTANCE_ID(input[ii]);
 					  UNITY_TRANSFER_INSTANCE_ID(input[ii], o);
 					  UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#endif
 					  float thicknessModifier = 1;
 					  float dist = distance(_WorldSpaceCameraPos, UnityObjectToWorld(input[ii].objPos));
 					  if (dist > 0)
