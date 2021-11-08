@@ -27,6 +27,7 @@ public class movementSystem2 : MonoBehaviour
     [SerializeField] float jumpForce = 10f;                                                 //Jump force used to calculate how hard the player jump in the Y Coordinate
     [SerializeField] float LongJumpImpulse = 30f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
     [SerializeField] float airVelocity = 5f;                                                //how fast the player is able to move while not grounded
+    [SerializeField] float FrictionAfterJump = 0f;                                          //the amount of friction added to the player after grounding a jump
     private Vector3 jumpDirection;                                                          //Stores the actually Jump Direction to execute later
     private bool jump;                                                                      //is the character jumping?
 
@@ -91,11 +92,20 @@ public class movementSystem2 : MonoBehaviour
         if (isGrounded && Velocity.y < 0)
         {
             Velocity.y = -2f;                                                                                                               //If player is grounded do velocity.y to -2
+
             Velocity.x = 0f;                                                                                                                //If player is grounded do velocity.x to 0
             Velocity.z = 0f;                                                                                                                //If player is grounded do velocity.z to 0
 
             jumpDirection = new Vector3(0, 0, 0);                                                                                           //If player is grounded do airDirection to 0
             jump = true;                                                                                                                    //If player is grounded reset jump state
+        }
+        else if(!isGrounded)
+        {
+            if (jump)
+            {
+                Vector3 directionMoving = moveDir.normalized;
+                Velocity += new Vector3(directionMoving.x * moveSpeed * Time.deltaTime, 0, directionMoving.z * moveSpeed * Time.deltaTime);
+            }
         }
 
         /* define Horizontal and Vertical Axis */
@@ -142,7 +152,7 @@ public class movementSystem2 : MonoBehaviour
             }
             else
             {
-                charController.Move(moveDir.normalized * airVelocity * Time.deltaTime);                                                     //Do the player to execute the Character Movement selected from before (on air)
+                Velocity += (moveDir.normalized * airVelocity * Time.deltaTime);                                                            //Do the player to execute the Character Movement selected from before (on air)
             }
             }
 
@@ -163,14 +173,14 @@ public class movementSystem2 : MonoBehaviour
         {                                                                                                                 
             Vector3 airDirection = moveDir.normalized;                                                                                      //take the player moving direction and store it
 
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift) && moveSpeed >= 5)
             {
                 jumpDirection = new Vector3(airDirection.x * LongJumpImpulse, jumpForce, airDirection.z * LongJumpImpulse);                 //set the jump direction (long jump)
                 jump = false;                                                                                                               //make sure the player only jump once
             }
             else
             {
-                jumpDirection = new Vector3(airDirection.x * moveSpeed, jumpForce, airDirection.z * moveSpeed);                             //set the jump direction (normal jump)
+                jumpDirection = new Vector3(airDirection.x * (moveSpeed / 2), jumpForce, airDirection.z * (moveSpeed / 2));                 //set the jump direction (normal jump)
                 jump = false;                                                                                                               //make sure the player only jump once
             }
 
