@@ -25,14 +25,16 @@ public class movementSystem2 : MonoBehaviour
     /* Jump Controller */
 
     [SerializeField] float jumpForce = 10f;                                                 //Jump force used to calculate how hard the player jump in the Y Coordinate
-    [SerializeField] float LongJumpImpulse = 10f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
+    [SerializeField] float LongJumpImpulse = 30f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
+    [SerializeField] float airVelocity = 5f;                                                //how fast the player is able to move while not grounded
     private Vector3 jumpDirection;                                                          //Stores the actually Jump Direction to execute later
+    private bool jump;                                                                      //is the character jumping?
 
     [Space(20)]
 
     /* Gravity Controller */
 
-    [SerializeField] float gravity = -9.81f;                                                //the GRAVITY!
+    [SerializeField] float gravity = -9.81f;                                                //the GRAVITY force towards the center mass.
 
     [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
 
@@ -50,7 +52,7 @@ public class movementSystem2 : MonoBehaviour
     [SerializeField] LayerMask groundMask;                                                  //the layers/layer at wich the groundcheck returns true
     [SerializeField] bool isGrounded;                                                       //is the player grounded?
 
-    /* some Important Vector3 */
+    /* movement Vectors */
 
     private Vector3 direction;                                                              //main movement of the character is not camera based  (NOT IN USE)
     private Vector3 moveDir;                                                                //main movement of the character is camera based      (IN USE)
@@ -84,13 +86,16 @@ public class movementSystem2 : MonoBehaviour
 
         isGrounded = Physics.CheckSphere(charGroundCheck.position, charGroundDistance, groundMask);                                         //Create a sphere at the marked transform to check if grounded
 
-            /* if grounded reset gravity force */
+        /* if grounded reset gravity force */
 
-            if(isGrounded && Velocity.y < 0)
-            {
-                Velocity.y = -2f;                                                                                                           //If player is grounded do velocity.y to -2
-                Velocity.x = 0f;                                                                                                            //If player is grounded do velocity.x to 0
-                Velocity.z = 0f;                                                                                                            //If player is grounded do velocity.z to 0
+        if (isGrounded && Velocity.y < 0)
+        {
+            Velocity.y = -2f;                                                                                                               //If player is grounded do velocity.y to -2
+            Velocity.x = 0f;                                                                                                                //If player is grounded do velocity.x to 0
+            Velocity.z = 0f;                                                                                                                //If player is grounded do velocity.z to 0
+
+            jumpDirection = new Vector3(0, 0, 0);                                                                                           //If player is grounded do airDirection to 0
+            jump = true;                                                                                                                    //If player is grounded reset jump state
         }
 
         /* define Horizontal and Vertical Axis */
@@ -104,7 +109,7 @@ public class movementSystem2 : MonoBehaviour
 
         /* if input is being received move character */
 
-        if (direction.magnitude >= 0.1f && isGrounded)
+        if (direction.magnitude >= 0.1f)
         {
 
             /* fix speed if lower than minimun */
@@ -126,17 +131,24 @@ public class movementSystem2 : MonoBehaviour
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + charCamera.eulerAngles.y;                           //Simple character rotation "WITHOUT SMOOTH ROTATION"
 
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, CharTurnSmoothTime);          //Character Rotation WITH SMOOTH ROTATION
-
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);                                                                           //DO THE ROTATION USING THE ANGLE SELECTED FROM BEFORE 
-
             moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;                                                              //Character Movement Camera Based.
 
-            charController.Move(moveDir.normalized * moveSpeed * Time.deltaTime);                                                           //Do the player to execute the Character Movement selected from before
-        }
+            if (isGrounded)
+            {
 
-        /* check if there is non input */
+                transform.rotation = Quaternion.Euler(0f, angle, 0f);                                                                       //DO THE ROTATION USING THE ANGLE SELECTED FROM BEFORE 
 
-        if (direction.magnitude == 0)
+                charController.Move(moveDir.normalized * moveSpeed * Time.deltaTime);                                                       //Do the player to execute the Character Movement selected from before (grounded)
+            }
+            else
+            {
+                charController.Move(moveDir.normalized * airVelocity * Time.deltaTime);                                                     //Do the player to execute the Character Movement selected from before (on air)
+            }
+            }
+
+            /* check if there is non input */
+
+            if (direction.magnitude == 0)
         {
             if (moveSpeed > minMoveSpeed)
             {
@@ -145,15 +157,24 @@ public class movementSystem2 : MonoBehaviour
         }
 
 
-        /* Jump System */
+        /* Jump System */  
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            Vector3 airDirection = moveDir.normalized;
+        if (Input.GetKey(KeyCode.Space) && jump)
+        {                                                                                                                 
+            Vector3 airDirection = moveDir.normalized;                                                                                      //take the player moving direction and store it
 
-            jumpDirection = new Vector3(airDirection.x * moveSpeed, jumpForce, airDirection.z * moveSpeed);
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                jumpDirection = new Vector3(airDirection.x * LongJumpImpulse, jumpForce, airDirection.z * LongJumpImpulse);                 //set the jump direction (long jump)
+                jump = false;                                                                                                               //make sure the player only jump once
+            }
+            else
+            {
+                jumpDirection = new Vector3(airDirection.x * moveSpeed, jumpForce, airDirection.z * moveSpeed);                             //set the jump direction (normal jump)
+                jump = false;                                                                                                               //make sure the player only jump once
+            }
 
-            Velocity += jumpDirection;
+            Velocity += jumpDirection;                                                                                                      //add the jump direction to the player direction making the character do the jump
         }
 
 
