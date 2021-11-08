@@ -13,6 +13,8 @@ public class movementSystem2 : MonoBehaviour
 
     [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
 
+    /* Speed Controller */
+
     [SerializeField] float moveSpeed = 0f;                                                  //current moving Speed
     [SerializeField] float minMoveSpeed = 3f;                                               //basis speed
     [SerializeField] float maxMoveSpeed = 15f;                                              //Maximun speed archiavable while moving
@@ -20,19 +22,35 @@ public class movementSystem2 : MonoBehaviour
 
     [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
 
-    [SerializeField] float jumpForce = 10f;                                                 //Jump force used to calculate how hard the player jump
+    /* Jump Controller */
 
-    [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
+    [SerializeField] float jumpForce = 10f;                                                 //Jump force used to calculate how hard the player jump in the Y Coordinate
+    [SerializeField] float LongJumpImpulse = 10f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
+    private Vector3 jumpDirection;                                                          //Stores the actually Jump Direction to execute later
+
+    [Space(20)]
+
+    /* Gravity Controller */
 
     [SerializeField] float gravity = -9.81f;                                                //the GRAVITY!
 
+    [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
+
+    /* rotation Controller */
+
     [SerializeField] float CharTurnSmoothTime = 0.1f;                                       //rotation smoothness of the character
     private float turnSmoothVelocity;                                                       //the stored value used in the function to calculate the rotation smoothnes of the character
+
+    [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
+
+    /* grounCheck Controller */
 
     [SerializeField] Transform charGroundCheck;                                             //the location and rotation of the point where the ground check is created
     [SerializeField] float charGroundDistance = 0.4f;                                       //the radius of the ground check
     [SerializeField] LayerMask groundMask;                                                  //the layers/layer at wich the groundcheck returns true
     [SerializeField] bool isGrounded;                                                       //is the player grounded?
+
+    /* some Important Vector3 */
 
     private Vector3 direction;                                                              //main movement of the character is not camera based  (NOT IN USE)
     private Vector3 moveDir;                                                                //main movement of the character is camera based      (IN USE)
@@ -68,10 +86,12 @@ public class movementSystem2 : MonoBehaviour
 
             /* if grounded reset gravity force */
 
-            if(isGrounded && Velocity.y > 0)
+            if(isGrounded && Velocity.y < 0)
             {
                 Velocity.y = -2f;                                                                                                           //If player is grounded do velocity.y to -2
-            }
+                Velocity.x = 0f;                                                                                                            //If player is grounded do velocity.x to 0
+                Velocity.z = 0f;                                                                                                            //If player is grounded do velocity.z to 0
+        }
 
         /* define Horizontal and Vertical Axis */
 
@@ -84,7 +104,7 @@ public class movementSystem2 : MonoBehaviour
 
         /* if input is being received move character */
 
-        if (direction.magnitude >= 0.1f)
+        if (direction.magnitude >= 0.1f && isGrounded)
         {
 
             /* fix speed if lower than minimun */
@@ -123,6 +143,20 @@ public class movementSystem2 : MonoBehaviour
                 moveSpeed = moveSpeed - speedGain;                                                                                          //if the player speed is higher than the maximun, remove the gain speed util it hits the maximum
             }
         }
+
+
+        /* Jump System */
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            Vector3 airDirection = moveDir.normalized;
+
+            jumpDirection = new Vector3(airDirection.x * moveSpeed, jumpForce, airDirection.z * moveSpeed);
+
+            Velocity += jumpDirection;
+        }
+
+
 
         /* gravity creation and application */
 
