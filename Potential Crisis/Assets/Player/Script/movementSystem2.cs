@@ -27,7 +27,6 @@ public class movementSystem2 : MonoBehaviour
     [SerializeField] float jumpForce = 10f;                                                 //Jump force used to calculate how hard the player jump in the Y Coordinate
     [SerializeField] float LongJumpImpulse = 30f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
     [SerializeField] float airVelocity = 5f;                                                //how fast the player is able to move while not grounded
-    [SerializeField] float FrictionAfterJump = 0f;                                          //the amount of friction added to the player after grounding a jump
     private Vector3 jumpDirection;                                                          //Stores the actually Jump Direction to execute later
     private bool jump;                                                                      //is the character jumping?
 
@@ -52,6 +51,15 @@ public class movementSystem2 : MonoBehaviour
     [SerializeField] float charGroundDistance = 0.4f;                                       //the radius of the ground check
     [SerializeField] LayerMask groundMask;                                                  //the layers/layer at wich the groundcheck returns true
     [SerializeField] bool isGrounded;                                                       //is the player grounded?
+
+    [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
+
+    /* Slope Checker */
+
+    [SerializeField] private float slopeForce;
+    [SerializeField] private float slopeForceRayLength;
+
+    [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
 
     /* movement Vectors */
 
@@ -82,7 +90,6 @@ public class movementSystem2 : MonoBehaviour
 
     private void FixedUpdate()
     {
-
         /* check if grounded */
 
         isGrounded = Physics.CheckSphere(charGroundCheck.position, charGroundDistance, groundMask);                                         //Create a sphere at the marked transform to check if grounded
@@ -92,9 +99,9 @@ public class movementSystem2 : MonoBehaviour
         if (isGrounded && Velocity.y < 0)
         {
             Velocity.y = -2f;                                                                                                               //If player is grounded do velocity.y to -2
+            Velocity.x = 0f;
+            Velocity.z = 0f;
 
-            Velocity.x = 0f;                                                                                                                //If player is grounded do velocity.x to 0
-            Velocity.z = 0f;                                                                                                                //If player is grounded do velocity.z to 0
 
             jumpDirection = new Vector3(0, 0, 0);                                                                                           //If player is grounded do airDirection to 0
             jump = true;                                                                                                                    //If player is grounded reset jump state
@@ -104,7 +111,7 @@ public class movementSystem2 : MonoBehaviour
             if (jump)
             {
                 Vector3 directionMoving = moveDir.normalized;
-                Velocity += new Vector3(directionMoving.x * moveSpeed * Time.deltaTime, 0, directionMoving.z * moveSpeed * Time.deltaTime);
+                Velocity += new Vector3(directionMoving.x * moveSpeed * Time.deltaTime, 0, directionMoving.z * moveSpeed * Time.deltaTime); //if the player jump out of a sledge without jumping save the speed and apply it until it hits the ground again
             }
         }
 
@@ -143,6 +150,8 @@ public class movementSystem2 : MonoBehaviour
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, CharTurnSmoothTime);          //Character Rotation WITH SMOOTH ROTATION
             moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;                                                              //Character Movement Camera Based.
 
+            /* check if char grounded or not */
+
             if (isGrounded)
             {
 
@@ -173,14 +182,16 @@ public class movementSystem2 : MonoBehaviour
         {                                                                                                                 
             Vector3 airDirection = moveDir.normalized;                                                                                      //take the player moving direction and store it
 
+            float realJumpForce = Mathf.Sqrt(jumpForce * -2 * gravity);
+
             if (Input.GetKey(KeyCode.LeftShift) && moveSpeed >= 5)
             {
-                jumpDirection = new Vector3(airDirection.x * LongJumpImpulse, jumpForce, airDirection.z * LongJumpImpulse);                 //set the jump direction (long jump)
+                jumpDirection = new Vector3(airDirection.x * LongJumpImpulse, realJumpForce, airDirection.z * LongJumpImpulse);                 //set the jump direction (long jump)
                 jump = false;                                                                                                               //make sure the player only jump once
             }
             else
             {
-                jumpDirection = new Vector3(airDirection.x * (moveSpeed / 2), jumpForce, airDirection.z * (moveSpeed / 2));                 //set the jump direction (normal jump)
+                jumpDirection = new Vector3(airDirection.x * (moveSpeed / 2), realJumpForce, airDirection.z * (moveSpeed / 2));                 //set the jump direction (normal jump)
                 jump = false;                                                                                                               //make sure the player only jump once
             }
 
@@ -195,5 +206,43 @@ public class movementSystem2 : MonoBehaviour
 
         charController.Move(Velocity * Time.deltaTime);                                                                                     //Add the gravity to our Character
 
+        /* if on slope add force to fix it */
+
+        if (direction.magnitude > 0 && onSlope())
+            charController.Move(Vector3.down * charController.height / 2 * slopeForce * Time.deltaTime);                                    //add an constant force to character when it is in a slope
+
     }
+
+    /* check if player is on slope */
+
+    private bool onSlope()                                                                                                                                                                                                       
+    {
+        if (!jump)
+            return false;
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, charController.height / 2 * slopeForceRayLength))
+            if (hit.normal != Vector3.up)
+                return true;
+        return false;
+    }
+
+    /* check if character is colliding with groundmask */ 
+
+    // ON PROGRES STILL BUGGY 
+
+    private void OnControllerColliderHit(ControllerColliderHit hit) 
+    {
+        if ((groundMask.value & (1 << hit.transform.gameObject.layer)) > 0)
+        {
+            Velocity.x = 0;                                                                     //IF CHARACTER IS COLLING RESET VELOCITY X & Z
+            Velocity.z = 0;                                                                     //IF CHARACTER IS COLLIDING RESET VELOCITY X & Z
+        }
+        else
+        {
+            Debug.Log("Not in Layermask");
+        }
+    }
+
 }
