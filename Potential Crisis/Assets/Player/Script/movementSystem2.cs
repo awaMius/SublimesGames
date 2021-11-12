@@ -24,17 +24,28 @@ public class movementSystem2 : MonoBehaviour
 
     /* Jump Controller */
 
-    [SerializeField] float jumpForce = 10f;                                                 //Jump force used to calculate how hard the player jump in the Y Coordinate
-    [SerializeField] float LongJumpImpulse = 30f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
+    [SerializeField] float jumpForce = 15f;                                                 //Jump force used to calculate how hard the player jump in the Y Coordinate
+    [SerializeField] float LongJumpImpulse = 20f;                                           //Long Jump Impulse use to calculate how hard the player jump in the X or Z Coordinate
     [SerializeField] float airVelocity = 5f;                                                //how fast the player is able to move while not grounded
+
+    [Space(10)]
+    /* jump rays */
+    [SerializeField] float jumpDirectionRayLenght = 0.25f;                                  //the length of the ray to check if the player collided towards something in the jump direction
+    [SerializeField] float jumpDirectionRayOffset = 0.1f;                                   //offset towards center of character of the rays
+    [SerializeField] float jumpDirectionRayOpening = 2f;                                    //take the number of grads you want to use and divide by 45
+
+    /*private values of jump */
     private Vector3 jumpDirection;                                                          //Stores the actually Jump Direction to execute later
     private bool jump;                                                                      //is the character jumping?
+    private float currentAirVelocity;                                                       //the Real CurrentVelocityOnAir
 
     [Space(20)]
 
     /* Gravity Controller */
 
-    [SerializeField] float gravity = -9.81f;                                                //the GRAVITY force towards the center mass.
+    [SerializeField] float gravity = -9.81f;                                                //the main gravity value
+    [SerializeField] float GravityAdderOnAir = 0.5f;                                        //the constantly added gravity so the player always go down faster.
+    private float CurrentGravityForce = -9.81f;                                             //the GRAVITY force towards the center mass.
 
     [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
 
@@ -51,6 +62,7 @@ public class movementSystem2 : MonoBehaviour
     [SerializeField] float charGroundDistance = 0.4f;                                       //the radius of the ground check
     [SerializeField] LayerMask groundMask;                                                  //the layers/layer at wich the groundcheck returns true
     [SerializeField] bool isGrounded;                                                       //is the player grounded?
+    private Vector3 NotGroundedDirectionMoving;                                             //the Direction Moving while Not Grounded
 
     [Space(20)]                                                                             //Add an space of 20px in the inspector, just for it to look better
 
@@ -86,10 +98,47 @@ public class movementSystem2 : MonoBehaviour
 
         groundMask = LayerMask.GetMask("ground");                                           //LayerMask should get the mask "ground" and select it as groundMask
     }
+
+    /* Input System in normal Update because better Detection */
+    private void Update()
+    {
+
+        /* Jump System */
+
+        if (Input.GetKeyDown(KeyCode.Space) && jump && isGrounded)
+        {
+            Vector3 JumpDirection = transform.forward;                                                                                        //take the forward direction of the player and set it as the LongJumpDiretion;
+
+            float realJumpForce = Mathf.Sqrt(jumpForce * -2 * CurrentGravityForce);
+            float realLongJumpForce = Mathf.Sqrt(jumpForce * -1 * CurrentGravityForce);
+
+            if (Input.GetKey(KeyCode.LeftShift) && moveSpeed >= maxMoveSpeed / 2)
+            {
+                currentAirVelocity = airVelocity * 4;
+                jumpDirection = new Vector3(JumpDirection.x * LongJumpImpulse, realLongJumpForce, JumpDirection.z * LongJumpImpulse);         //set the jump direction (long jump)                                                                                                                     //make sure the player only jump once
+            }
+            else
+            {
+                currentAirVelocity = airVelocity;
+                jumpDirection = new Vector3(JumpDirection.x * (moveSpeed / 2), realJumpForce, JumpDirection.z * (moveSpeed / 2));            //set the jump direction (normal jump)                                                                                                           //make sure the player only jump once
+            }
+
+            Velocity += jumpDirection;                                                                                                      //add the jump direction to the player direction making the character do the jump
+            jump = false;                                                                                                                   //set the state of jump to it is jumping
+        }
+
+    }
+
+
     /* update void, mainly for aplying the movement  */
 
     private void FixedUpdate()
     {
+
+        Debug.DrawRay(transform.position, new Vector3(Velocity.x, 0, Velocity.z) * jumpDirectionRayLenght, Color.red);
+        Debug.DrawRay(transform.position + new Vector3(jumpDirectionRayOffset, 0, jumpDirectionRayOffset), new Vector3(Velocity.x, 0, Velocity.z) * jumpDirectionRayLenght + new Vector3(jumpDirectionRayOpening, 0, jumpDirectionRayOpening), Color.red);
+        Debug.DrawRay(transform.position - new Vector3(jumpDirectionRayOffset, 0, jumpDirectionRayOffset), new Vector3(Velocity.x, 0, Velocity.z) * jumpDirectionRayLenght + new Vector3(-jumpDirectionRayOpening, 0, -jumpDirectionRayOpening), Color.red);
+
         /* check if grounded */
 
         isGrounded = Physics.CheckSphere(charGroundCheck.position, charGroundDistance, groundMask);                                         //Create a sphere at the marked transform to check if grounded
@@ -105,14 +154,19 @@ public class movementSystem2 : MonoBehaviour
 
             jumpDirection = new Vector3(0, 0, 0);                                                                                           //If player is grounded do airDirection to 0
             jump = true;                                                                                                                    //If player is grounded reset jump state
+            CurrentGravityForce = gravity;                                                                                                  //reset of gravity force
+            NotGroundedDirectionMoving = new Vector3(0, 0, 0);
         }
-        else if(!isGrounded)
+        else if (!isGrounded)
         {
             if (jump)
             {
-                Vector3 directionMoving = moveDir.normalized;
-                Velocity += new Vector3(directionMoving.x * moveSpeed * Time.deltaTime, 0, directionMoving.z * moveSpeed * Time.deltaTime); //if the player jump out of a sledge without jumping save the speed and apply it until it hits the ground again
+                if(NotGroundedDirectionMoving == new Vector3(0,0,0))
+                 NotGroundedDirectionMoving = moveDir;                                                                              //the the direction on wich the player was moving
+
+                charController.Move(NotGroundedDirectionMoving.normalized * moveSpeed * Time.deltaTime);                                                         //if the player jump out of a sledge without jumping save the speed and apply it until it hits the ground again 
             }
+            CurrentGravityForce -= GravityAdderOnAir;                                                                               //apply the gravity adder on air 
         }
 
         /* define Horizontal and Vertical Axis */
@@ -129,20 +183,6 @@ public class movementSystem2 : MonoBehaviour
         if (direction.magnitude >= 0.1f)
         {
 
-            /* fix speed if lower than minimun */
-
-            if(moveSpeed < minMoveSpeed )
-            {
-                moveSpeed = minMoveSpeed + 0.1f;                                                                                            //check if character move speed is starting lower than the min Move Speed
-            }
-
-            /* increase speed over time */
-
-            if(moveSpeed >= minMoveSpeed && moveSpeed < maxMoveSpeed)
-            {
-                moveSpeed = moveSpeed + speedGain;                                                                                          //if the player speed is lower than the maximun, add the gain speed util it hits the maximum
-            }
-
             /* actually move the player */
 
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + charCamera.eulerAngles.y;                           //Simple character rotation "WITHOUT SMOOTH ROTATION"
@@ -154,6 +194,20 @@ public class movementSystem2 : MonoBehaviour
 
             if (isGrounded)
             {
+                /* fix speed if lower than minimun */
+
+
+                if (moveSpeed < minMoveSpeed)
+                {
+                    moveSpeed = minMoveSpeed + 0.1f;                                                                                            //check if character move speed is starting lower than the min Move Speed
+                }
+
+                /* increase speed over time */
+
+                if (moveSpeed >= minMoveSpeed && moveSpeed < maxMoveSpeed)
+                {
+                    moveSpeed = moveSpeed + speedGain;                                                                                          //if the player speed is lower than the maximun, add the gain speed util it hits the maximum
+                }
 
                 transform.rotation = Quaternion.Euler(0f, angle, 0f);                                                                       //DO THE ROTATION USING THE ANGLE SELECTED FROM BEFORE 
 
@@ -163,11 +217,11 @@ public class movementSystem2 : MonoBehaviour
             {
                 Velocity += (moveDir.normalized * airVelocity * Time.deltaTime);                                                            //Do the player to execute the Character Movement selected from before (on air)
             }
-            }
+        }
 
-            /* check if there is non input */
+        /* check if there is non input */
 
-            if (direction.magnitude == 0)
+        if (direction.magnitude == 0)
         {
             if (moveSpeed > minMoveSpeed)
             {
@@ -176,35 +230,16 @@ public class movementSystem2 : MonoBehaviour
         }
 
 
-        /* Jump System */  
-
-        if (Input.GetKey(KeyCode.Space) && jump)
-        {                                                                                                                 
-            Vector3 airDirection = moveDir.normalized;                                                                                      //take the player moving direction and store it
-
-            float realJumpForce = Mathf.Sqrt(jumpForce * -2 * gravity);
-
-            if (Input.GetKey(KeyCode.LeftShift) && moveSpeed >= 5)
-            {
-                jumpDirection = new Vector3(airDirection.x * LongJumpImpulse, realJumpForce, airDirection.z * LongJumpImpulse);                 //set the jump direction (long jump)
-                jump = false;                                                                                                               //make sure the player only jump once
-            }
-            else
-            {
-                jumpDirection = new Vector3(airDirection.x * (moveSpeed / 2), realJumpForce, airDirection.z * (moveSpeed / 2));                 //set the jump direction (normal jump)
-                jump = false;                                                                                                               //make sure the player only jump once
-            }
-
-            Velocity += jumpDirection;                                                                                                      //add the jump direction to the player direction making the character do the jump
-        }
-
-
 
         /* gravity creation and application */
 
-        Velocity.y += gravity * Time.deltaTime;                                                                                             //Create the gravity
+        Velocity.y += CurrentGravityForce * Time.deltaTime;                                                                                 //Create the gravity
 
-        charController.Move(Velocity * Time.deltaTime);                                                                                     //Add the gravity to our Character
+        charController.Move(Velocity * Time.deltaTime);
+
+
+
+        //Add the gravity to our Character
 
         /* if on slope add force to fix it */
 
@@ -215,29 +250,41 @@ public class movementSystem2 : MonoBehaviour
 
     /* check if player is on slope */
 
-    private bool onSlope()                                                                                                                                                                                                       
+    private bool onSlope()
     {
+        slopeForce = -gravity;
+
         if (!jump)
-            return false;
+            return false;                                                                                                                   //if player is jumping it is not in a slope
 
-        RaycastHit hit;
+        RaycastHit hit;                                                                                                                     //stored raycast hit point
 
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, charController.height / 2 * slopeForceRayLength))
-            if (hit.normal != Vector3.up)
-                return true;
-        return false;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, charController.height / 2 * slopeForceRayLength))                    //send a ray downwards of player
+            if (hit.normal != Vector3.up)                                                                                                   //check if the hit point of the ray is at 90grad
+                return true;                                                                                                                //if it isnt , the player is on a slope
+        return false;                                                                                                                       //if it is , player is not on a slope
     }
 
-    /* check if character is colliding with groundmask */ 
+    /* check if character is colliding with groundmask */
 
     // ON PROGRES STILL BUGGY 
 
-    private void OnControllerColliderHit(ControllerColliderHit hit) 
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if ((groundMask.value & (1 << hit.transform.gameObject.layer)) > 0)
         {
-            Velocity.x = 0;                                                                     //IF CHARACTER IS COLLING RESET VELOCITY X & Z
-            Velocity.z = 0;                                                                     //IF CHARACTER IS COLLIDING RESET VELOCITY X & Z
+            RaycastHit hitDirectionJump;
+
+            /*  execute the rays and the collision test */
+
+            if (Physics.Raycast(transform.position, new Vector3(Velocity.x, 0, Velocity.z), out hitDirectionJump, charController.height / 2 * jumpDirectionRayLenght)                                            //check for a hit in the jump direction forwards 
+                && Physics.Raycast(transform.position + new Vector3(jumpDirectionRayOffset, 0, jumpDirectionRayOffset), new Vector3(Velocity.x + jumpDirectionRayOpening, 0, Velocity.z + jumpDirectionRayOpening), out hitDirectionJump, charController.height / 2 * jumpDirectionRayLenght)                 //check for a hit in the jump direction diagonally +45
+                && Physics.Raycast(transform.position - new Vector3(jumpDirectionRayOffset, 0, jumpDirectionRayOffset), new Vector3(Velocity.x - jumpDirectionRayOpening, 0, Velocity.z - jumpDirectionRayOpening), out hitDirectionJump, charController.height / 2 * jumpDirectionRayLenght)
+                && !jump && !onSlope())               //check for a hit in the jump direction diagonally -45
+            {
+                Velocity.x = 0;                                                                                                                     //IF CHARACTER IS COLLING RESET VELOCITY X & Z
+                Velocity.z = 0;                                                                                                                     //IF CHARACTER IS COLLIDING RESET VELOCITY X & Z
+            }
         }
         else
         {
